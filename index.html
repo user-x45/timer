@@ -146,11 +146,11 @@
   <div class="container">
     <!-- 初期入力画面 -->
     <div id="setup-screen">
-      <h1>時間を設定してください</h1>
+      <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>してください</h1>
       <div class="inputs">
         <input id="minutes" type="number" min="0" max="59" value="0" />
         <span class="label">分</span>
-        <input id="seconds" type="number" min="0" max="59" value="10" />
+        <input id="seconds" type="number" min="0" max="59" value="0" />
         <span class="label">秒</span>
       </div>
       <button class="start" onclick="startCountdown()">スタート</button>
@@ -158,8 +158,8 @@
 
     <!-- カウントダウン画面 -->
     <div id="countdown-screen" class="hidden">
-      <h1>カウントダウン中</h1>
-      <div id="display">00分10秒</div>
+      <h1>カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby></h1>
+      <div id="display">00分00秒</div>
       <button class="start" onclick="resumeCountdown()">スタート</button>
       <button class="stop" onclick="pauseCountdown()">ストップ</button>
       <button class="reset" onclick="resetCountdown()">リセット</button>
@@ -167,7 +167,7 @@
 
     <!-- 終了画面 -->
     <div id="finished-screen" class="hidden">
-      <h1>時間になりました！</h1>
+      <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！</h1>
       <button class="stop" onclick="returnToSetup()">ストップ</button>
     </div>
   </div>
