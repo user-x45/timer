@@ -36,7 +36,8 @@
       padding: 0;
       font-family: 'Segoe UI', sans-serif;
       font-size: 16px;
-      background: var(--bg);
+      background: var(--bg) no-repeat center center fixed;
+      background-size: cover;
       color: var(--text);
       display: flex;
       justify-content: center;
@@ -44,6 +45,11 @@
 
     .container {
       text-align: center;
+      margin: 40px;
+      padding: 30px;
+      background-color: rgba(128, 128, 128, 0.6);
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .hidden {
@@ -154,7 +160,7 @@
         <span class="label">秒</span>
       </div>
       <button class="start" onclick="startCountdown()">スタート</button>
-      <button class="reset" onclick="resetInputFields()">リセット</button>
+      <button class="reset" onclick="resetInputs()">リセット</button>
     </div>
 
     <!-- カウントダウン画面 -->
@@ -173,6 +179,7 @@
     </div>
   </div>
 
+  <!-- アラーム音 -->
   <audio id="alarm-sound" preload="auto" loop>
     <source src="https://user-b4h.github.io/timer/alerm1.mp3" type="audio/mp3" />
   </audio>
@@ -188,6 +195,12 @@
     const display = document.getElementById('display');
     const alarmSound = document.getElementById('alarm-sound');
 
+    function setRandomBackground() {
+      const images = ['https://user-b4h.github.io/timer/images/img1.jpg', 'https://user-b4h.github.io/timer/images/img2.jpg', 'https://user-b4h.github.io/timer/images/img3.jpg', 'https://user-b4h.github.io/timer/images/img4.jpg'];
+      const selected = images[Math.floor(Math.random() * images.length)];
+      document.body.style.backgroundImage = `url(${selected})`;
+    }
+
     function updateDisplay() {
       const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
       const secs = String(totalSeconds % 60).padStart(2, '0');
@@ -197,31 +210,16 @@
     function startCountdown() {
       if (running) return;
 
-      alarmSound.currentTime = 0;
-      alarmSound.muted = true;
-      const playPromise = alarmSound.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          alarmSound.pause();
-          alarmSound.muted = false;
-          alarmSound.currentTime = 0;
-        }).catch((e) => {
-          console.warn("音声再生許可取得失敗", e);
-        });
+      const minsInput = document.getElementById('minutes').value;
+      const secsInput = document.getElementById('seconds').value;
+
+      if (!/^\d+$/.test(minsInput) || !/^\d+$/.test(secsInput)) {
+        return; // 数字でない場合は何もしない
       }
 
       if (totalSeconds === 0) {
-        const minsInput = document.getElementById('minutes').value;
-        const secsInput = document.getElementById('seconds').value;
-
         const mins = parseInt(minsInput, 10);
         const secs = parseInt(secsInput, 10);
-
-        if (isNaN(mins) || isNaN(secs)) {
-          alert('数値を入力してください');
-          return;
-        }
-
         totalSeconds = mins * 60 + secs;
 
         if (totalSeconds <= 0) {
@@ -229,6 +227,14 @@
           return;
         }
       }
+
+      alarmSound.currentTime = 0;
+      alarmSound.muted = true;
+      alarmSound.play().then(() => {
+        alarmSound.pause();
+        alarmSound.muted = false;
+        alarmSound.currentTime = 0;
+      }).catch(() => {});
 
       setupScreen.classList.add('hidden');
       countdownScreen.classList.remove('hidden');
@@ -243,7 +249,6 @@
         } else {
           clearInterval(countdown);
           running = false;
-          updateDisplay();
           playBeep();
           showFinishedScreen();
         }
@@ -254,7 +259,6 @@
       if (running || totalSeconds === 0) return;
 
       running = true;
-
       countdown = setInterval(() => {
         if (totalSeconds > 0) {
           totalSeconds--;
@@ -262,7 +266,6 @@
         } else {
           clearInterval(countdown);
           running = false;
-          updateDisplay();
           playBeep();
           showFinishedScreen();
         }
@@ -277,14 +280,12 @@
     function resetCountdown() {
       pauseCountdown();
       totalSeconds = 0;
-      document.getElementById('minutes').value = 0;
-      document.getElementById('seconds').value = 0;
       updateDisplay();
       countdownScreen.classList.add('hidden');
       setupScreen.classList.remove('hidden');
     }
 
-    function resetInputFields() {
+    function resetInputs() {
       document.getElementById('minutes').value = 0;
       document.getElementById('seconds').value = 0;
     }
@@ -309,12 +310,13 @@
       finishedScreen.classList.add('hidden');
       setupScreen.classList.remove('hidden');
       totalSeconds = 0;
-      document.getElementById('minutes').value = 0;
-      document.getElementById('seconds').value = 0;
       updateDisplay();
     }
 
-    updateDisplay();
+    window.onload = () => {
+      setRandomBackground();
+      updateDisplay();
+    };
   </script>
 </body>
 </html>
