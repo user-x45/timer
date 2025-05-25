@@ -188,7 +188,12 @@
     const alarmSound = document.getElementById('alarm-sound');
 
     function setRandomBackground() {
-      const images = ['https://user-b4h.github.io/timer/images/img1.jpg', 'https://user-b4h.github.io/timer/images/img2.jpg', 'https://user-b4h.github.io/timer/images/img3.jpg', 'https://user-b4h.github.io/timer/images/img4.jpg'];
+      const images = [
+        'https://user-b4h.github.io/timer/images/img1.jpg',
+        'https://user-b4h.github.io/timer/images/img2.jpg',
+        'https://user-b4h.github.io/timer/images/img3.jpg',
+        'https://user-b4h.github.io/timer/images/img4.jpg'
+      ];
       const selected = images[Math.floor(Math.random() * images.length)];
       document.body.style.backgroundImage = `url(${selected})`;
     }
@@ -206,7 +211,7 @@
       const secsInput = document.getElementById('seconds').value;
 
       if (!/^\d+$/.test(minsInput) || !/^\d+$/.test(secsInput)) {
-        return; // 数字でない場合は何もしない
+        return;
       }
 
       if (totalSeconds === 0) {
@@ -274,6 +279,7 @@
       updateDisplay();
       countdownScreen.classList.add('hidden');
       setupScreen.classList.remove('hidden');
+      resetInputs(); // ← 追加
     }
 
     function resetInputs() {
@@ -302,6 +308,7 @@
       setupScreen.classList.remove('hidden');
       totalSeconds = 0;
       updateDisplay();
+      resetInputs(); //
     }
 
     window.onload = () => {
