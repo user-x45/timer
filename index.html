@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>カウントダウンタイマー</title>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --text: #222;
+      --box-bg: #fff;
+      --box-shadow: rgba(0, 0, 0, 0.1);
+      --btn-start: #4CAF50;
+      --btn-stop: #f39c12;
+      --btn-reset: #e74c3c;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1e1e;
+        --text: #f0f0f0;
+        --box-bg: #2c2c2c;
+        --box-shadow: rgba(255, 255, 255, 0.05);
+        --btn-start: #81c784;
+        --btn-stop: #ffb74d;
+        --btn-reset: #e57373;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 16px;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 26px;
+    }
+
+    .inputs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .inputs input {
+      width: 70px;
+      font-size: 24px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+      background: var(--box-bg);
+      color: var(--text);
+    }
+
+    .label {
+      font-size: 16px;
+      margin: 0 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 2px 6px var(--box-shadow);
+      margin: 10px 6px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .start { background-color: var(--btn-start); color: white; }
+    .stop  { background-color: var(--btn-stop);  color: white; }
+    .reset { background-color: var(--btn-reset); color: white; }
+
+    #display {
+      font-size: 56px;
+      font-weight: bold;
+      background: var(--box-bg);
+      color: var(--text);
+      padding: 24px 48px;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px var(--box-shadow);
+      margin: 30px 0;
+    }
+
+    /* PCサイズで拡大 */
+    @media (min-width: 768px) {
+      body {
+        font-size: 18px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .inputs input {
+        font-size: 28px;
+        width: 80px;
+      }
+
+      .label {
+        font-size: 18px;
+      }
+
+      button {
+        font-size: 20px;
+        padding: 16px 32px;
+      }
+
+      #display {
+        font-size: 72px;
+        padding: 30px 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 初期入力画面 -->
+    <div id="setup-screen">
+      <h1>時間を設定してください</h1>
+      <div class="inputs">
+        <input id="minutes" type="number" min="0" max="59" value="0" />
+        <span class="label">分</span>
+        <input id="seconds" type="number" min="0" max="59" value="10" />
+        <span class="label">秒</span>
+      </div>
+      <button class="start" onclick="startCountdown()">スタート</button>
+    </div>
+
+    <!-- カウントダウン画面 -->
+    <div id="countdown-screen" class="hidden">
+      <h1>カウントダウン中</h1>
+      <div id="display">00分10秒</div>
+      <button class="start" onclick="resumeCountdown()">スタート</button>
+      <button class="stop" onclick="pauseCountdown()">ストップ</button>
+      <button class="reset" onclick="resetCountdown()">リセット</button>
+    </div>
+
+    <!-- 終了画面 -->
+    <div id="finished-screen" class="hidden">
+      <h1>時間になりました！</h1>
+      <button class="stop" onclick="returnToSetup()">ストップ</button>
+    </div>
+  </div>
+
+  <script>
+    let countdown;
+    let totalSeconds = 0;
+    let running = false;
+    let audio;
+
+    const setupScreen = document.getElementById('setup-screen');
+    const countdownScreen = document.getElementById('countdown-screen');
+    const finishedScreen = document.getElementById('finished-screen');
+    const display = document.getElementById('display');
+
+    function updateDisplay() {
+      const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const secs = String(totalSeconds % 60).padStart(2, '0');
+      display.textContent = `${mins}分${secs}秒`;
+    }
+
+    function startCountdown() {
+      if (running) return;
+
+      if (totalSeconds === 0) {
+        const mins = parseInt(document.getElementById('minutes').value, 10);
+        const secs = parseInt(document.getElementById('seconds').value, 10);
+        totalSeconds = mins * 60 + secs;
+
+        if (totalSeconds <= 0) {
+          alert('0より大きい時間を設定してください');
+          return;
+        }
+      }
+
+      setupScreen.classList.add('hidden');
+      countdownScreen.classList.remove('hidden');
+
+      running = true;
+      updateDisplay();
+
+      countdown = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateDisplay();
+        } else {
+          clearInterval(countdown);
+          running = false;
+          updateDisplay();
+          playBeep();
+          showFinishedScreen();
+        }
+      }, 1000);
+    }
+
+    function resumeCountdown() {
+      if (running || totalSeconds === 0) return;
+
+      running = true;
+
+      countdown = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateDisplay();
+        } else {
+          clearInterval(countdown);
+          running = false;
+          updateDisplay();
+          playBeep();
+          showFinishedScreen();
+        }
+      }, 1000);
+    }
+
+    function pauseCountdown() {
+      clearInterval(countdown);
+      running = false;
+    }
+
+    function resetCountdown() {
+      pauseCountdown();
+      totalSeconds = 0;
+      updateDisplay();
+      countdownScreen.classList.add('hidden');
+      setupScreen.classList.remove('hidden');
+    }
+
+    function playBeep() {
+      audio = new Audio('https://user-b4h.github.io/timer/alerm1.mp3');
+      audio.loop = true;
+      audio.play();
+    }
+
+    function stopBeep() {
+      if (audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        audio = null;
+      }
+    }
+
+    function showFinishedScreen() {
+      countdownScreen.classList.add('hidden');
+      finishedScreen.classList.remove('hidden');
+    }
+
+    function returnToSetup() {
+      stopBeep();
+      finishedScreen.classList.add('hidden');
+      setupScreen.classList.remove('hidden');
+      totalSeconds = 0;
+      updateDisplay();
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>
