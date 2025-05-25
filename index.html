@@ -270,6 +270,8 @@
     function resetCountdown() {
       pauseCountdown();
       totalSeconds = 0;
+      document.getElementById('minutes').value = 0;
+      document.getElementById('seconds').value = 0;
       updateDisplay();
       countdownScreen.classList.add('hidden');
       setupScreen.classList.remove('hidden');
@@ -295,6 +297,8 @@
       finishedScreen.classList.add('hidden');
       setupScreen.classList.remove('hidden');
       totalSeconds = 0;
+      document.getElementById('minutes').value = 0;
+      document.getElementById('seconds').value = 0;
       updateDisplay();
     }
 
