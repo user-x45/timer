@@ -113,17 +113,38 @@
     }
 
     @media (min-width: 768px) {
-      body { font-size: 18px; }
-      h1 { font-size: 32px; }
-      .inputs input { font-size: 28px; width: 80px; }
-      .label { font-size: 18px; }
-      button { font-size: 20px; padding: 16px 32px; }
-      #display { font-size: 72px; padding: 30px 60px; }
+      body {
+        font-size: 18px;
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      .inputs input {
+        font-size: 28px;
+        width: 80px;
+      }
+
+      .label {
+        font-size: 18px;
+      }
+
+      button {
+        font-size: 20px;
+        padding: 16px 32px;
+      }
+
+      #display {
+        font-size: 72px;
+        padding: 30px 60px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- 初期入力画面 -->
     <div id="setup-screen">
       <h1>時間を設定してください</h1>
       <div class="inputs">
@@ -135,6 +156,7 @@
       <button class="start" onclick="startCountdown()">スタート</button>
     </div>
 
+    <!-- カウントダウン画面 -->
     <div id="countdown-screen" class="hidden">
       <h1>カウントダウン中</h1>
       <div id="display">00分10秒</div>
@@ -143,26 +165,33 @@
       <button class="reset" onclick="resetCountdown()">リセット</button>
     </div>
 
+    <!-- 終了画面 -->
     <div id="finished-screen" class="hidden">
       <h1>時間になりました！</h1>
       <button class="stop" onclick="returnToSetup()">ストップ</button>
     </div>
-
-    <audio id="beep" preload="auto" loop>
-      <source src="https://user-b4h.github.io/timer/alerm1.mp3" type="audio/mpeg" />
-    </audio>
   </div>
+
+  <!-- 音声要素 -->
+  <audio id="alarm-sound" preload="auto" loop>
+    <source src="https://user-b4h.github.io/timer/alerm1.mp3" type="audio/mp3" />
+  </audio>
+  <audio id="silent-audio" preload="auto">
+    <source src="https://www.nhk.or.jp/das/audio/D0002100/D0002100134_00000_A_001.m4a" type="audio/m4a" />
+  </audio>
 
   <script>
     let countdown;
     let totalSeconds = 0;
     let running = false;
-    const audio = document.getElementById('beep');
 
     const setupScreen = document.getElementById('setup-screen');
     const countdownScreen = document.getElementById('countdown-screen');
     const finishedScreen = document.getElementById('finished-screen');
     const display = document.getElementById('display');
+
+    const alarmSound = document.getElementById('alarm-sound');
+    const silentAudio = document.getElementById('silent-audio');
 
     function updateDisplay() {
       const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
@@ -170,8 +199,21 @@
       display.textContent = `${mins}分${secs}秒`;
     }
 
+    function ensureAudioPermission() {
+      if (silentAudio.paused) {
+        silentAudio.play().then(() => {
+          silentAudio.pause();
+          silentAudio.currentTime = 0;
+        }).catch((err) => {
+          console.warn("音声再生の許可取得エラー:", err);
+        });
+      }
+    }
+
     function startCountdown() {
       if (running) return;
+
+      ensureAudioPermission(); // iOS対策
 
       if (totalSeconds === 0) {
         const mins = parseInt(document.getElementById('minutes').value, 10);
@@ -182,19 +224,6 @@
           alert('0より大きい時間を設定してください');
           return;
         }
-      }
-
-      // iOSのために事前に無音再生で再生許可を取得
-      if (audio.paused) {
-        const prevVolume = audio.volume;
-        audio.volume = 0;
-        audio.play().then(() => {
-          audio.pause();
-          audio.currentTime = 0;
-          audio.volume = prevVolume;
-        }).catch(() => {
-          audio.volume = prevVolume;
-        });
       }
 
       setupScreen.classList.add('hidden');
@@ -250,13 +279,13 @@
     }
 
     function playBeep() {
-      audio.currentTime = 0;
-      audio.play();
+      alarmSound.currentTime = 0;
+      alarmSound.play();
     }
 
     function stopBeep() {
-      audio.pause();
-      audio.currentTime = 0;
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
     }
 
     function showFinishedScreen() {
