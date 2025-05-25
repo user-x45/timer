@@ -112,7 +112,6 @@
       margin: 30px 0;
     }
 
-    /* PCサイズで拡大 */
     @media (min-width: 768px) {
       body {
         font-size: 18px;
@@ -172,6 +171,9 @@
       <button class="stop" onclick="returnToSetup()">ストップ</button>
     </div>
   </div>
+
+  <!-- 音声を事前に読み込み -->
+  <audio id="beep-sound" src="https://user-b4h.github.io/timer/alerm1.mp3" preload="auto" loop></audio>
 
   <script>
     let countdown;
@@ -257,9 +259,10 @@
     }
 
     function playBeep() {
-      audio = new Audio('https://user-b4h.github.io/timer/alerm1.mp3');
-      audio.loop = true;
-      audio.play();
+      const beep = document.getElementById('beep-sound');
+      beep.currentTime = 0;
+      beep.play();
+      audio = beep;
     }
 
     function stopBeep() {
