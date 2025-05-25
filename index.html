@@ -36,6 +36,12 @@
       left: 0;
       right: 0;
       touch-action:none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-user-drag: none;
+      -webkit-touch-callout:none;
+      -moz-user-select: none;
+      -moz-touch-callout:none;
     }
 
     .container {
@@ -308,6 +314,11 @@
     window.onload = () => {
       setRandomBackground();
       updateDisplay();
+    }
+  </script>
+  <script>
+    document.oncontextmenu = function(){
+    return false;
     };
   </script>
 </body>
