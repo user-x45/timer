@@ -154,6 +154,7 @@
         <span class="label">秒</span>
       </div>
       <button class="start" onclick="startCountdown()">スタート</button>
+      <button class="reset" onclick="resetInputFields()">リセット</button>
     </div>
 
     <!-- カウントダウン画面 -->
@@ -172,7 +173,6 @@
     </div>
   </div>
 
-  <!-- アラーム音 -->
   <audio id="alarm-sound" preload="auto" loop>
     <source src="https://user-b4h.github.io/timer/alerm1.mp3" type="audio/mp3" />
   </audio>
@@ -186,7 +186,6 @@
     const countdownScreen = document.getElementById('countdown-screen');
     const finishedScreen = document.getElementById('finished-screen');
     const display = document.getElementById('display');
-
     const alarmSound = document.getElementById('alarm-sound');
 
     function updateDisplay() {
@@ -198,7 +197,6 @@
     function startCountdown() {
       if (running) return;
 
-      // ユーザー操作時にアラーム音を一瞬再生し再生許可を得る
       alarmSound.currentTime = 0;
       alarmSound.muted = true;
       const playPromise = alarmSound.play();
@@ -213,8 +211,17 @@
       }
 
       if (totalSeconds === 0) {
-        const mins = parseInt(document.getElementById('minutes').value, 10);
-        const secs = parseInt(document.getElementById('seconds').value, 10);
+        const minsInput = document.getElementById('minutes').value;
+        const secsInput = document.getElementById('seconds').value;
+
+        const mins = parseInt(minsInput, 10);
+        const secs = parseInt(secsInput, 10);
+
+        if (isNaN(mins) || isNaN(secs)) {
+          alert('数値を入力してください');
+          return;
+        }
+
         totalSeconds = mins * 60 + secs;
 
         if (totalSeconds <= 0) {
@@ -275,6 +282,11 @@
       updateDisplay();
       countdownScreen.classList.add('hidden');
       setupScreen.classList.remove('hidden');
+    }
+
+    function resetInputFields() {
+      document.getElementById('minutes').value = 0;
+      document.getElementById('seconds').value = 0;
     }
 
     function playBeep() {
