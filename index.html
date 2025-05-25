@@ -113,32 +113,12 @@
     }
 
     @media (min-width: 768px) {
-      body {
-        font-size: 18px;
-      }
-
-      h1 {
-        font-size: 32px;
-      }
-
-      .inputs input {
-        font-size: 28px;
-        width: 80px;
-      }
-
-      .label {
-        font-size: 18px;
-      }
-
-      button {
-        font-size: 20px;
-        padding: 16px 32px;
-      }
-
-      #display {
-        font-size: 72px;
-        padding: 30px 60px;
-      }
+      body { font-size: 18px; }
+      h1 { font-size: 32px; }
+      .inputs input { font-size: 28px; width: 80px; }
+      .label { font-size: 18px; }
+      button { font-size: 20px; padding: 16px 32px; }
+      #display { font-size: 72px; padding: 30px 60px; }
     }
   </style>
 </head>
@@ -172,19 +152,19 @@
     </div>
   </div>
 
-  <!-- 音声を事前に読み込み -->
-  <audio id="beep-sound" src="https://user-b4h.github.io/timer/alerm1.mp3" preload="auto" loop></audio>
+  <!-- 音声タグ（事前読み込み） -->
+  <audio id="beep-sound" preload="auto" src="https://user-b4h.github.io/timer/alerm1.mp3" loop></audio>
 
   <script>
     let countdown;
     let totalSeconds = 0;
     let running = false;
-    let audio;
 
     const setupScreen = document.getElementById('setup-screen');
     const countdownScreen = document.getElementById('countdown-screen');
     const finishedScreen = document.getElementById('finished-screen');
     const display = document.getElementById('display');
+    const beep = document.getElementById('beep-sound');
 
     function updateDisplay() {
       const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
@@ -194,6 +174,14 @@
 
     function startCountdown() {
       if (running) return;
+
+      // iPhone対策：初回タップで音声の再生許可を取得
+      if (beep.paused) {
+        beep.play().then(() => {
+          beep.pause();
+          beep.currentTime = 0;
+        }).catch(() => {});
+      }
 
       if (totalSeconds === 0) {
         const mins = parseInt(document.getElementById('minutes').value, 10);
@@ -259,18 +247,12 @@
     }
 
     function playBeep() {
-      const beep = document.getElementById('beep-sound');
-      beep.currentTime = 0;
-      beep.play();
-      audio = beep;
+      beep.play().catch(() => {});
     }
 
     function stopBeep() {
-      if (audio) {
-        audio.pause();
-        audio.currentTime = 0;
-        audio = null;
-      }
+      beep.pause();
+      beep.currentTime = 0;
     }
 
     function showFinishedScreen() {
