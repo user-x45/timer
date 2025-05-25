@@ -124,7 +124,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- 初期入力画面 -->
     <div id="setup-screen">
       <h1>時間を設定してください</h1>
       <div class="inputs">
@@ -136,7 +135,6 @@
       <button class="start" onclick="startCountdown()">スタート</button>
     </div>
 
-    <!-- カウントダウン画面 -->
     <div id="countdown-screen" class="hidden">
       <h1>カウントダウン中</h1>
       <div id="display">00分10秒</div>
@@ -145,26 +143,26 @@
       <button class="reset" onclick="resetCountdown()">リセット</button>
     </div>
 
-    <!-- 終了画面 -->
     <div id="finished-screen" class="hidden">
       <h1>時間になりました！</h1>
       <button class="stop" onclick="returnToSetup()">ストップ</button>
     </div>
-  </div>
 
-  <!-- 音声タグ（事前読み込み） -->
-  <audio id="beep-sound" preload="auto" src="https://user-b4h.github.io/timer/alerm1.mp3" loop></audio>
+    <audio id="beep" preload="auto" loop>
+      <source src="https://user-b4h.github.io/timer/alerm1.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
 
   <script>
     let countdown;
     let totalSeconds = 0;
     let running = false;
+    const audio = document.getElementById('beep');
 
     const setupScreen = document.getElementById('setup-screen');
     const countdownScreen = document.getElementById('countdown-screen');
     const finishedScreen = document.getElementById('finished-screen');
     const display = document.getElementById('display');
-    const beep = document.getElementById('beep-sound');
 
     function updateDisplay() {
       const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
@@ -175,14 +173,6 @@
     function startCountdown() {
       if (running) return;
 
-      // iPhone対策：初回タップで音声の再生許可を取得
-      if (beep.paused) {
-        beep.play().then(() => {
-          beep.pause();
-          beep.currentTime = 0;
-        }).catch(() => {});
-      }
-
       if (totalSeconds === 0) {
         const mins = parseInt(document.getElementById('minutes').value, 10);
         const secs = parseInt(document.getElementById('seconds').value, 10);
@@ -192,6 +182,19 @@
           alert('0より大きい時間を設定してください');
           return;
         }
+      }
+
+      // iOSのために事前に無音再生で再生許可を取得
+      if (audio.paused) {
+        const prevVolume = audio.volume;
+        audio.volume = 0;
+        audio.play().then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = prevVolume;
+        }).catch(() => {
+          audio.volume = prevVolume;
+        });
       }
 
       setupScreen.classList.add('hidden');
@@ -247,12 +250,13 @@
     }
 
     function playBeep() {
-      beep.play().catch(() => {});
+      audio.currentTime = 0;
+      audio.play();
     }
 
     function stopBeep() {
-      beep.pause();
-      beep.currentTime = 0;
+      audio.pause();
+      audio.currentTime = 0;
     }
 
     function showFinishedScreen() {
