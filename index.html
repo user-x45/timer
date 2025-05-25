@@ -200,10 +200,12 @@
 
       // ユーザー操作時にアラーム音を一瞬再生し再生許可を得る
       alarmSound.currentTime = 0;
+      alarmSound.muted = true;
       const playPromise = alarmSound.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
           alarmSound.pause();
+          alarmSound.muted = false;
           alarmSound.currentTime = 0;
         }).catch((e) => {
           console.warn("音声再生許可取得失敗", e);
