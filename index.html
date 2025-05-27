@@ -14,148 +14,73 @@
       --btn-stop: #f39c12;
       --btn-reset: #e74c3c;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       font-family: 'Segoe UI', sans-serif;
       font-size: 16px;
       background: var(--bg) no-repeat center center fixed;
       background-size: cover;
       color: var(--text);
-      display: flex;
-      justify-content: center;
+      display: flex; justify-content: center;
       overflow: hidden;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      position: fixed; top: 0; bottom: 0; left: 0; right: 0;
       touch-action: none;
     }
-
-    .container {
-      text-align: center;
-      margin-top: 20px;
-      height: fit-content;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      font-size: 26px;
-    }
-
+    .container { text-align: center; margin-top: 20px; height: fit-content; }
+    .hidden { display: none; }
+    h1 { margin-bottom: 20px; font-size: 26px; }
     .inputs {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 16px;
-      align-items: center;
-      flex-wrap: wrap;
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 16px; align-items: center; flex-wrap: wrap;
     }
-
     .inputs input {
-      width: 70px;
-      font-size: 24px;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      text-align: center;
-      background: var(--box-bg);
-      color: var(--text);
+      width: 70px; font-size: 24px; padding: 12px;
+      border-radius: 10px; border: 1px solid #ccc;
+      text-align: center; background: var(--box-bg); color: var(--text);
     }
-
     .label {
-      font-size: 16px;
-      margin: 0 4px;
-      display: flex;
-      align-items: center;
+      font-size: 16px; margin: 0 4px;
+      display: flex; align-items: center;
     }
-
     button {
-      font-size: 18px;
-      padding: 14px 24px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 2px 6px var(--box-shadow);
-      margin: 10px 6px;
+      font-size: 18px; padding: 14px 24px; border: none;
+      border-radius: 10px; cursor: pointer; transition: 0.3s;
+      box-shadow: 0 2px 6px var(--box-shadow); margin: 10px 6px;
     }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
+    button:hover { opacity: 0.9; }
     .start { background-color: var(--btn-start); color: white; }
     .stop  { background-color: var(--btn-stop);  color: white; }
     .reset { background-color: var(--btn-reset); color: white; }
-
     #display {
-      font-size: 56px;
-      font-weight: bold;
-      background: var(--box-bg);
-      color: var(--text);
-      padding: 24px 48px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px var(--box-shadow);
-      margin: 30px 0;
+      font-size: 56px; font-weight: bold; background: var(--box-bg);
+      color: var(--text); padding: 24px 48px; border-radius: 16px;
+      box-shadow: 0 4px 10px var(--box-shadow); margin: 30px 0;
     }
-
     @media (min-width: 768px) {
-      body {
-        font-size: 18px;
-      }
-
-      h1 {
-        font-size: 32px;
-      }
-
-      .inputs input {
-        font-size: 28px;
-        width: 80px;
-      }
-
-      .label {
-        font-size: 18px;
-      }
-
-      button {
-        font-size: 20px;
-        padding: 16px 32px;
-      }
-
-      #display {
-        font-size: 72px;
-        padding: 30px 60px;
-      }
+      body { font-size: 18px; }
+      h1 { font-size: 32px; }
+      .inputs input { font-size: 28px; width: 80px; }
+      .label { font-size: 18px; }
+      button { font-size: 20px; padding: 16px 32px; }
+      #display { font-size: 72px; padding: 30px 60px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- 初期入力画面 -->
     <div id="setup-screen">
       <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>してください</h1>
       <div class="inputs">
-        <input id="minutes" type="number" min="0" max="59" value="0" />
+        <input id="minutes" type="number" min="0" max="99" value="0" />
         <span class="label">分</span>
-        <input id="seconds" type="number" min="0" max="59" value="0" />
+        <input id="seconds" type="number" min="0" max="99" value="0" />
         <span class="label">秒</span>
       </div>
       <button class="start" onclick="startCountdown()">スタート</button>
       <button class="reset" onclick="resetInputs()">リセット</button>
     </div>
 
-    <!-- カウントダウン画面 -->
     <div id="countdown-screen" class="hidden">
       <h1>カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby></h1>
       <div id="display">00分00秒</div>
@@ -164,14 +89,12 @@
       <button class="reset" onclick="resetCountdown()">リセット</button>
     </div>
 
-    <!-- 終了画面 -->
     <div id="finished-screen" class="hidden">
       <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！</h1>
       <button class="stop" onclick="returnToSetup()">ストップ</button>
     </div>
   </div>
 
-  <!-- アラーム音 -->
   <audio id="alarm-sound" preload="auto" loop>
     <source src="https://user-b4h.github.io/timer/alerm1.mp3" type="audio/mp3" />
   </audio>
@@ -207,22 +130,24 @@
     function startCountdown() {
       if (running) return;
 
-      const minsInput = document.getElementById('minutes').value;
-      const secsInput = document.getElementById('seconds').value;
+      let mins = parseInt(document.getElementById('minutes').value, 10);
+      let secs = parseInt(document.getElementById('seconds').value, 10);
 
-      if (!/^\d+$/.test(minsInput) || !/^\d+$/.test(secsInput)) {
-        return;
+      if (isNaN(mins) || isNaN(secs)) return;
+
+      if (mins > 99) {
+        mins = 99;
+        document.getElementById('minutes').value = 99;
       }
 
-      if (totalSeconds === 0) {
-        const mins = parseInt(minsInput, 10);
-        const secs = parseInt(secsInput, 10);
-        totalSeconds = mins * 60 + secs;
-
-        if (totalSeconds <= 0) {
-          return;
-        }
+      if (secs > 59) {
+        secs = 59;
+        document.getElementById('seconds').value = 59;
       }
+
+      totalSeconds = mins * 60 + secs;
+
+      if (totalSeconds <= 0) return;
 
       alarmSound.currentTime = 0;
       alarmSound.muted = true;
@@ -279,7 +204,7 @@
       updateDisplay();
       countdownScreen.classList.add('hidden');
       setupScreen.classList.remove('hidden');
-      resetInputs(); // ← 追加
+      resetInputs();
     }
 
     function resetInputs() {
@@ -308,13 +233,31 @@
       setupScreen.classList.remove('hidden');
       totalSeconds = 0;
       updateDisplay();
-      resetInputs(); //
+      resetInputs();
     }
+
+    document.getElementById('minutes').addEventListener('input', (e) => {
+      if (e.target.value.length > 2) {
+        e.target.value = e.target.value.slice(0, 2);
+      }
+      if (parseInt(e.target.value, 10) > 99) {
+        e.target.value = 99;
+      }
+    });
+
+    document.getElementById('seconds').addEventListener('input', (e) => {
+      if (e.target.value.length > 2) {
+        e.target.value = e.target.value.slice(0, 2);
+      }
+      if (parseInt(e.target.value, 10) > 59) {
+        e.target.value = 59;
+      }
+    });
 
     window.onload = () => {
       setRandomBackground();
       updateDisplay();
-    }
+    };
   </script>
 </body>
 </html>
