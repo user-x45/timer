@@ -3,451 +3,270 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>モード選択・ストップウォッチ・タイマー</title>
+  <title>タイマー</title>
   <style>
     :root {
-      --text: #000;
-      --btn-main: #3498db;
-      --btn-alt: #9b59b6;
       --bg: #f5f7fa;
+      --text: #222;
       --box-bg: #fff;
       --box-shadow: rgba(0, 0, 0, 0.1);
       --btn-start: #4CAF50;
       --btn-stop: #f39c12;
       --btn-reset: #e74c3c;
     }
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; }
     body {
+      margin: 0; padding: 0;
       font-family: 'Segoe UI', sans-serif;
+      font-size: 16px;
+      background: var(--bg) no-repeat center center fixed;
       background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
       color: var(--text);
-      background-color: var(--bg);
+      display: flex; justify-content: center;
       overflow: hidden;
       position: fixed; top: 0; bottom: 0; left: 0; right: 0;
       touch-action: none;
     }
-    .container {
-      border-radius: 20px;
-      text-align: center;
-      color: var(--text);
-      height: fit-content;
-      margin-top: 40px;
-    }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 30px;
-      color: black;
-    }
-    .button {
-      font-size: 20px;
-      padding: 16px 32px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      margin: 10px;
-      transition: 0.3s;
-      color: white;
-      user-select: none;
-      display: inline-block;
-      text-decoration: none;
-      text-align: center;
-    }
-    .button:hover {
-      opacity: 0.9;
-    }
-    .stopwatch { background-color: var(--btn-main); }
-    .timer     { background-color: var(--btn-alt); }
-    #modeSelectArea { margin-bottom: 30px; }
-    .mode-content { display: none; font-size: 24px; color: black; }
-    #stopwatchContent h2 {
-      margin-bottom: 20px;
-      font-size: 28px;
-    }
-    #display-stopwatch {
-      font-size: 48px;
-      font-weight: bold;
-      background: var(--box-bg);
-      color: var(--text);
-      padding: 24px 48px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px var(--box-shadow);
-      margin: 30px 0;
-      font-variant-numeric: tabular-nums;
-    }
-    button.stopwatch-btn {
-      font-size: 18px;
-      padding: 14px 24px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 2px 6px var(--box-shadow);
-      margin: 10px 6px;
-      color: white;
-    }
-    button.start { background-color: var(--btn-start); }
-    button.stop  { background-color: var(--btn-stop); }
-    button.reset { background-color: var(--btn-reset); }
-    button.stopwatch-btn:hover { opacity: 0.9; }
-
-    #timerContent { color: var(--text); }
-    #timerContent h1, #timerContent h2 {
-      font-size: 26px;
-      margin-bottom: 20px;
-    }
+    .container { text-align: center; margin-top: 20px; height: fit-content; }
+    .hidden { display: none; }
+    h1 { margin-bottom: 20px; font-size: 26px; }
     .inputs {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-bottom: 16px;
-      align-items: center;
-      flex-wrap: wrap;
+      display: flex; gap: 8px; justify-content: center;
+      margin-bottom: 16px; align-items: center; flex-wrap: wrap;
     }
     .inputs input {
-      width: 70px;
-      font-size: 24px;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      text-align: center;
-      background: var(--box-bg);
-      color: var(--text);
+      width: 70px; font-size: 24px; padding: 12px;
+      border-radius: 10px; border: 1px solid #ccc;
+      text-align: center; background: var(--box-bg); color: var(--text);
     }
     .label {
-      font-size: 16px;
-      margin: 0 4px;
-      display: flex;
-      align-items: center;
+      font-size: 16px; margin: 0 4px;
+      display: flex; align-items: center;
     }
-    #timerContent button {
-      font-size: 18px;
-      padding: 14px 24px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 2px 6px var(--box-shadow);
-      margin: 10px 6px;
-      color: white;
+    button {
+      font-size: 18px; padding: 14px 24px; border: none;
+      border-radius: 10px; cursor: pointer; transition: 0.3s;
+      box-shadow: 0 2px 6px var(--box-shadow); margin: 10px 6px;
     }
-    #timerContent button:hover { opacity: 0.9; }
-    #timerContent button.start { background-color: var(--btn-start); }
-    #timerContent button.stop  { background-color: var(--btn-stop); }
-    #timerContent button.reset { background-color: var(--btn-reset); }
-
-    #display-timer {
-      font-size: 56px;
-      font-weight: bold;
-      background: var(--box-bg);
-      color: var(--text);
-      padding: 24px 48px;
-      border-radius: 16px;
-      box-shadow: 0 4px 10px var(--box-shadow);
-      margin: 30px 0;
+    button:hover { opacity: 0.9; }
+    .start { background-color: var(--btn-start); color: white; }
+    .stop  { background-color: var(--btn-stop);  color: white; }
+    .reset { background-color: var(--btn-reset); color: white; }
+    #display {
+      font-size: 56px; font-weight: bold; background: var(--box-bg);
+      color: var(--text); padding: 24px 48px; border-radius: 16px;
+      box-shadow: 0 4px 10px var(--box-shadow); margin: 30px 0;
     }
-
-    .hidden { display: none !important; }
-
     @media (min-width: 768px) {
-      h1, #timerContent h1 { font-size: 32px; }
-      .inputs input {
-        font-size: 28px;
-        width: 80px;
-      }
+      body { font-size: 18px; }
+      h1 { font-size: 32px; }
+      .inputs input { font-size: 28px; width: 80px; }
       .label { font-size: 18px; }
-      #timerContent button { font-size: 20px; padding: 16px 32px; }
-      #display-timer {
-        font-size: 72px;
-        padding: 30px 60px;
-      }
-      #stopwatchContent h2 { font-size: 32px; }
-      #display-stopwatch {
-        font-size: 64px;
-        padding: 30px 60px;
-      }
-      button.stopwatch-btn {
-        font-size: 20px;
-        padding: 16px 32px;
-      }
+      button { font-size: 20px; padding: 16px 32px; }
+      #display { font-size: 72px; padding: 30px 60px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div id="modeSelectArea">
-      <h1>モードを選択してください</h1>
-      <button class="button stopwatch" id="btnStopwatch">ストップウォッチ</button>
-      <button class="button timer" id="btnTimer">タイマー</button>
+    <div id="setup-screen">
+      <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>してください</h1>
+      <div class="inputs">
+        <input id="minutes" type="number" min="0" max="99" value="0" />
+        <span class="label">分</span>
+        <input id="seconds" type="number" min="0" max="59" value="0" />
+        <span class="label">秒</span>
+      </div>
+      <button class="start" onclick="startCountdown()">スタート</button>
+      <button class="reset" onclick="resetInputs()">リセット</button>
     </div>
 
-    <div id="stopwatchContent" class="mode-content">
-      <h2>ストップウォッチ</h2>
-      <div id="display-stopwatch">00:00.000</div>
-      <button class="stopwatch-btn start" id="startBtn">スタート</button>
-      <button class="stopwatch-btn stop" id="stopBtn">ストップ</button>
-      <button class="stopwatch-btn reset" id="resetBtn">リセット</button>
+    <div id="countdown-screen" class="hidden">
+      <h1>カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby></h1>
+      <div id="display">00分00秒</div>
+      <button class="start" onclick="resumeCountdown()">スタート</button>
+      <button class="stop" onclick="pauseCountdown()">ストップ</button>
+      <button class="reset" onclick="resetCountdown()">リセット</button>
     </div>
 
-    <div id="timerContent" class="mode-content">
-      <div id="setup-screen">
-        <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>してください</h1>
-        <div class="inputs">
-          <input id="minutes" type="number" min="0" max="99" value="0" inputmode="numeric" />
-          <span class="label">分</span>
-          <input id="seconds" type="number" min="0" max="59" value="0" inputmode="numeric" />
-          <span class="label">秒</span>
-        </div>
-        <button class="start" id="timerStartBtn">スタート</button>
-        <button class="reset" id="timerResetBtn">リセット</button>
-      </div>
-
-      <div id="countdown-screen" class="hidden">
-        <h1>カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby></h1>
-        <div id="display-timer">00分00秒</div>
-        <button class="start" id="timerResumeBtn">スタート</button>
-        <button class="stop" id="timerStopBtn">ストップ</button>
-        <button class="reset" id="timerResetCountdownBtn">リセット</button>
-      </div>
-
-      <div id="finished-screen" class="hidden">
-        <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！</h1>
-        <button class="stop" id="timerStopAlarmBtn">ストップ</button>
-      </div>
+    <div id="finished-screen" class="hidden">
+      <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！</h1>
+      <button class="stop" onclick="returnToSetup()">ストップ</button>
     </div>
   </div>
+
+  <!-- 音声をiPhoneで再生許可するための隠しボタン -->
+  <button id="audio-unlock" onclick="unlockAudio()" style="display:none;">音を許可</button>
 
   <audio id="alarm-sound" preload="auto" loop>
     <source src="https://user-b4h.github.io/timer/alerm1.mp3" type="audio/mp3" />
   </audio>
 
   <script>
-    // 背景画像ランダム設定
-    const backgrounds = [
-      'https://user-b4h.github.io/timer/images/img1.jpg',
-      'https://user-b4h.github.io/timer/images/img2.jpg',
-      'https://user-b4h.github.io/timer/images/img3.jpg',
-      'https://user-b4h.github.io/timer/images/img4.jpg',
-    ];
-    document.body.style.backgroundImage = `url(${backgrounds[Math.floor(Math.random() * backgrounds.length)]})`;
+    let countdown;
+    let totalSeconds = 0;
+    let running = false;
 
-    // DOM取得
-    const btnStopwatch = document.getElementById('btnStopwatch');
-    const btnTimer = document.getElementById('btnTimer');
-    const modeSelectArea = document.getElementById('modeSelectArea');
-
-    const stopwatchContent = document.getElementById('stopwatchContent');
-    const displayStopwatch = document.getElementById('display-stopwatch');
-    const startBtn = document.getElementById('startBtn');
-    const stopBtn = document.getElementById('stopBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
-    const timerContent = document.getElementById('timerContent');
     const setupScreen = document.getElementById('setup-screen');
     const countdownScreen = document.getElementById('countdown-screen');
     const finishedScreen = document.getElementById('finished-screen');
-    const minutesInput = document.getElementById('minutes');
-    const secondsInput = document.getElementById('seconds');
-    const timerStartBtn = document.getElementById('timerStartBtn');
-    const timerResetBtn = document.getElementById('timerResetBtn');
-    const timerResumeBtn = document.getElementById('timerResumeBtn');
-    const timerStopBtn = document.getElementById('timerStopBtn');
-    const timerResetCountdownBtn = document.getElementById('timerResetCountdownBtn');
-    const timerStopAlarmBtn = document.getElementById('timerStopAlarmBtn');
-    const displayTimer = document.getElementById('display-timer');
+    const display = document.getElementById('display');
     const alarmSound = document.getElementById('alarm-sound');
 
-    let stopwatchInterval = null;
-    let stopwatchStartTime = 0;
-    let stopwatchElapsed = 0;
-    let stopwatchRunning = false;
-
-    let timerInterval = null;
-    let timerTotalSeconds = 0;
-    let timerRemainingSeconds = 0;
-    let timerRunning = false;
-    let alarmPlaying = false;
-
-    // ストップウォッチ系関数
-    function formatStopwatchTime(ms) {
-      const totalSeconds = Math.floor(ms / 1000);
-      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-      const seconds = String(totalSeconds % 60).padStart(2, '0');
-      const milliseconds = String(ms % 1000).padStart(3, '0');
-      return `${minutes}:${seconds}.${milliseconds}`;
+    function setRandomBackground() {
+      const images = [
+        'https://user-b4h.github.io/timer/images/img1.jpg',
+        'https://user-b4h.github.io/timer/images/img2.jpg',
+        'https://user-b4h.github.io/timer/images/img3.jpg',
+        'https://user-b4h.github.io/timer/images/img4.jpg'
+      ];
+      const selected = images[Math.floor(Math.random() * images.length)];
+      document.body.style.backgroundImage = `url(${selected})`;
     }
-    function updateStopwatch() {
-      const now = Date.now();
-      stopwatchElapsed = now - stopwatchStartTime;
-      displayStopwatch.textContent = formatStopwatchTime(stopwatchElapsed);
+
+    function updateDisplay() {
+      const mins = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+      const secs = String(totalSeconds % 60).padStart(2, '0');
+      display.textContent = `${mins}分${secs}秒`;
     }
-    startBtn.addEventListener('click', () => {
-      if (!stopwatchRunning) {
-        stopwatchStartTime = Date.now() - stopwatchElapsed;
-        stopwatchInterval = setInterval(updateStopwatch, 10);
-        stopwatchRunning = true;
+
+    // iPhoneなどのブラウザで音声再生を許可するための関数
+    function unlockAudio() {
+      alarmSound.play().then(() => {
+        alarmSound.pause();
+        alarmSound.currentTime = 0;
+        // コンソールに成功メッセージ（任意）
+        // console.log("Audio unlocked.");
+      }).catch((err) => {
+        // console.log("Audio unlock failed:", err);
+      });
+    }
+
+    function startCountdown() {
+      unlockAudio();  // ← ここで一度再生をトライしてiPhoneの制限を解除
+
+      if (running) return;
+
+      let mins = parseInt(document.getElementById('minutes').value, 10);
+      let secs = parseInt(document.getElementById('seconds').value, 10);
+
+      if (isNaN(mins) || isNaN(secs)) return;
+
+      if (mins > 99) {
+        mins = 99;
+        document.getElementById('minutes').value = 99;
       }
-    });
-    stopBtn.addEventListener('click', () => {
-      if (stopwatchRunning) {
-        clearInterval(stopwatchInterval);
-        stopwatchRunning = false;
-      }
-    });
-    resetBtn.addEventListener('click', () => {
-      clearInterval(stopwatchInterval);
-      stopwatchRunning = false;
-      stopwatchElapsed = 0;
-      displayStopwatch.textContent = "00:00.000";
-    });
 
-    // タイマー系関数
-    function formatTimerTime(sec) {
-      const m = String(Math.floor(sec / 60)).padStart(2, '0');
-      const s = String(sec % 60).padStart(2, '0');
-      return `${m}分${s}秒`;
-    }
-    function updateTimer() {
-      if (timerRemainingSeconds <= 0) {
-        clearInterval(timerInterval);
-        timerRunning = false;
-        timerRemainingSeconds = 0;
-        displayTimer.textContent = "00分00秒";
-        showFinishedScreen();
-        playAlarm();
-        return;
+      if (secs > 59) {
+        secs = 59;
+        document.getElementById('seconds').value = 59;
       }
-      displayTimer.textContent = formatTimerTime(timerRemainingSeconds);
-      timerRemainingSeconds--;
-    }
 
-    function showSetupScreen() {
-      setupScreen.classList.remove('hidden');
-      countdownScreen.classList.add('hidden');
-      finishedScreen.classList.add('hidden');
-      stopAlarm();
-    }
-    function showCountdownScreen() {
+      totalSeconds = mins * 60 + secs;
+
+      if (totalSeconds <= 0) return;
+
       setupScreen.classList.add('hidden');
       countdownScreen.classList.remove('hidden');
-      finishedScreen.classList.add('hidden');
+
+      running = true;
+      updateDisplay();
+
+      countdown = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateDisplay();
+        } else {
+          clearInterval(countdown);
+          running = false;
+          playBeep();
+          showFinishedScreen();
+        }
+      }, 1000);
     }
+
+    function resumeCountdown() {
+      if (running || totalSeconds === 0) return;
+
+      running = true;
+      countdown = setInterval(() => {
+        if (totalSeconds > 0) {
+          totalSeconds--;
+          updateDisplay();
+        } else {
+          clearInterval(countdown);
+          running = false;
+          playBeep();
+          showFinishedScreen();
+        }
+      }, 1000);
+    }
+
+    function pauseCountdown() {
+      clearInterval(countdown);
+      running = false;
+    }
+
+    function resetCountdown() {
+      pauseCountdown();
+      totalSeconds = 0;
+      updateDisplay();
+      countdownScreen.classList.add('hidden');
+      setupScreen.classList.remove('hidden');
+      resetInputs();
+    }
+
+    function resetInputs() {
+      document.getElementById('minutes').value = 0;
+      document.getElementById('seconds').value = 0;
+    }
+
+    function playBeep() {
+      alarmSound.currentTime = 0;
+      alarmSound.play();
+    }
+
+    function stopBeep() {
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
+    }
+
     function showFinishedScreen() {
-      setupScreen.classList.add('hidden');
       countdownScreen.classList.add('hidden');
       finishedScreen.classList.remove('hidden');
     }
 
-    function playAlarm() {
-      if (!alarmPlaying) {
-        alarmSound.play();
-        alarmPlaying = true;
-      }
-    }
-    function stopAlarm() {
-      if (alarmPlaying) {
-        alarmSound.pause();
-        alarmSound.currentTime = 0;
-        alarmPlaying = false;
-      }
+    function returnToSetup() {
+      stopBeep();
+      finishedScreen.classList.add('hidden');
+      setupScreen.classList.remove('hidden');
+      totalSeconds = 0;
+      updateDisplay();
+      resetInputs();
     }
 
-    timerStartBtn.addEventListener('click', () => {
-      let m = parseInt(minutesInput.value);
-      let s = parseInt(secondsInput.value);
-      if (isNaN(m) || m < 0) m = 0;
-      if (isNaN(s) || s < 0) s = 0;
-      if (s > 59) s = 59;
-
-      timerTotalSeconds = m * 60 + s;
-      if (timerTotalSeconds <= 0) {
-        alert('時間を正しく設定してください。');
-        return;
+    document.getElementById('minutes').addEventListener('input', (e) => {
+      if (e.target.value.length > 2) {
+        e.target.value = e.target.value.slice(0, 2);
       }
-
-      timerRemainingSeconds = timerTotalSeconds;
-      showCountdownScreen();
-      updateTimer();
-      if (timerInterval) clearInterval(timerInterval);
-      timerInterval = setInterval(updateTimer, 1000);
-      timerRunning = true;
-      stopAlarm();
-    });
-
-    timerStopBtn.addEventListener('click', () => {
-      if (timerRunning) {
-        clearInterval(timerInterval);
-        timerRunning = false;
+      if (parseInt(e.target.value, 10) > 99) {
+        e.target.value = 99;
       }
     });
-    timerResumeBtn.addEventListener('click', () => {
-      if (!timerRunning && timerRemainingSeconds > 0) {
-        timerInterval = setInterval(updateTimer, 1000);
-        timerRunning = true;
+
+    document.getElementById('seconds').addEventListener('input', (e) => {
+      if (e.target.value.length > 2) {
+        e.target.value = e.target.value.slice(0, 2);
+      }
+      if (parseInt(e.target.value, 10) > 59) {
+        e.target.value = 59;
       }
     });
-    timerResetBtn.addEventListener('click', () => {
-      clearInterval(timerInterval);
-      timerRunning = false;
-      timerRemainingSeconds = 0;
-      minutesInput.value = 0;
-      secondsInput.value = 0;
-      showSetupScreen();
-    });
-    timerResetCountdownBtn.addEventListener('click', () => {
-      clearInterval(timerInterval);
-      timerRunning = false;
-      timerRemainingSeconds = 0;
-      minutesInput.value = 0;
-      secondsInput.value = 0;
-      showSetupScreen();
-    });
-    timerStopAlarmBtn.addEventListener('click', () => {
-      stopAlarm();
-      showSetupScreen();
-    });
 
-    btnStopwatch.addEventListener('click', () => {
-      modeSelectArea.style.display = 'none';
-      stopwatchContent.style.display = 'block';
-      timerContent.style.display = 'none';
-    });
-    btnTimer.addEventListener('click', () => {
-      modeSelectArea.style.display = 'none';
-      timerContent.style.display = 'block';
-      stopwatchContent.style.display = 'none';
-      showSetupScreen();
-    });
-
-    stopwatchContent.style.display = 'none';
-    timerContent.style.display = 'none';
-
-    // 追加：分秒入力欄に3桁以上入力できないように制限
-    function limitInputToTwoDigits(input, max) {
-      input.addEventListener('input', () => {
-        const v = input.value.replace(/[^0-9]/g, '');
-        let value = parseInt(v, 10);
-        if (isNaN(value)) {
-          input.value = '';
-        } else if (value > max) {
-          input.value = max;
-        } else {
-          input.value = String(value);
-        }
-      });
-    }
-    limitInputToTwoDigits(minutesInput, 99);
-    limitInputToTwoDigits(secondsInput, 59);
+    window.onload = () => {
+      setRandomBackground();
+      updateDisplay();
+    };
   </script>
 </body>
 </html>
