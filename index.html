@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>モード選択・ストップウォッチ・タイマー</title>
+  <title>ホーム</title>
   <style>
     :root {
       --text: #000;
@@ -15,6 +15,7 @@
       --btn-start: #4CAF50;
       --btn-stop: #f39c12;
       --btn-reset: #e74c3c;
+      --btn-back: #6c757d; /* 戻るボタンの色 */
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -51,7 +52,8 @@
     }
     .button:hover { opacity: 0.9; }
     .stopwatch { background-color: var(--btn-main); }
-    .timer     { background-color: var(--btn-alt); }
+    .timer        { background-color: var(--btn-alt); }
+    .back-to-mode { background-color: var(--btn-back); } /* 戻るボタンのスタイル */
     #modeSelectArea { margin-bottom: 30px; }
     .mode-content { display: none; font-size: 24px; color: black; }
     #stopwatchContent h2 {
@@ -154,6 +156,7 @@
       <button class="stopwatch-btn start" id="startBtn">スタート</button>
       <button class="stopwatch-btn stop" id="stopBtn">ストップ</button>
       <button class="stopwatch-btn reset" id="resetBtn">リセット</button>
+      <button class="button back-to-mode" id="backFromStopwatchBtn">モード選択に戻る</button>
     </div>
 
     <div id="timerContent" class="mode-content">
@@ -167,6 +170,7 @@
         </div>
         <button class="start" id="timerStartBtn">スタート</button>
         <button class="reset" id="timerResetBtn">リセット</button>
+        <button class="button back-to-mode" id="backFromTimerSetupBtn">モード選択に戻る</button>
       </div>
 
       <div id="countdown-screen" class="hidden">
@@ -175,11 +179,13 @@
         <button class="start" id="timerResumeBtn">スタート</button>
         <button class="stop" id="timerStopBtn">ストップ</button>
         <button class="reset" id="timerResetCountdownBtn">リセット</button>
+        <button class="button back-to-mode hidden" id="backFromTimerCountdownBtn">モード選択に戻る</button>
       </div>
 
       <div id="finished-screen" class="hidden">
         <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！</h1>
         <button class="stop" id="timerStopAlarmBtn">ストップ</button>
+        <button class="button back-to-mode hidden" id="backFromTimerFinishedBtn">モード選択に戻る</button>
       </div>
     </div>
   </div>
@@ -204,6 +210,7 @@
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const backFromStopwatchBtn = document.getElementById('backFromStopwatchBtn');
 
     const timerContent = document.getElementById('timerContent');
     const setupScreen = document.getElementById('setup-screen');
@@ -218,6 +225,10 @@
     const timerResetCountdownBtn = document.getElementById('timerResetCountdownBtn');
     const timerStopAlarmBtn = document.getElementById('timerStopAlarmBtn');
     const displayTimer = document.getElementById('display-timer');
+    const backFromTimerSetupBtn = document.getElementById('backFromTimerSetupBtn');
+    const backFromTimerCountdownBtn = document.getElementById('backFromTimerCountdownBtn');
+    const backFromTimerFinishedBtn = document.getElementById('backFromTimerFinishedBtn');
+
 
     let stopwatchInterval = null;
     let stopwatchStartTime = 0;
@@ -316,17 +327,26 @@
       setupScreen.classList.remove('hidden');
       countdownScreen.classList.add('hidden');
       finishedScreen.classList.add('hidden');
+      backFromTimerSetupBtn.classList.remove('hidden'); // 設定画面では表示
+      backFromTimerCountdownBtn.classList.add('hidden'); // 非表示
+      backFromTimerFinishedBtn.classList.add('hidden'); // 非表示
       stopAlarm();
     }
     function showCountdownScreen() {
       setupScreen.classList.add('hidden');
       countdownScreen.classList.remove('hidden');
       finishedScreen.classList.add('hidden');
+      backFromTimerSetupBtn.classList.add('hidden'); // 非表示
+      backFromTimerCountdownBtn.classList.add('hidden'); // カウントダウン中は非表示
+      backFromTimerFinishedBtn.classList.add('hidden'); // 非表示
     }
     function showFinishedScreen() {
       setupScreen.classList.add('hidden');
       countdownScreen.classList.add('hidden');
       finishedScreen.classList.remove('hidden');
+      backFromTimerSetupBtn.classList.add('hidden'); // 非表示
+      backFromTimerCountdownBtn.classList.add('hidden'); // 非表示
+      backFromTimerFinishedBtn.classList.add('hidden'); // 終了画面では非表示
     }
 
     timerStartBtn.addEventListener('click', () => {
@@ -383,7 +403,26 @@
       showSetupScreen();
     });
 
-    // モード切替時にもAudio初期化
+    // モード選択に戻る処理
+    function backToModeSelection() {
+      clearInterval(stopwatchInterval); // ストップウォッチを停止
+      stopwatchRunning = false;
+      stopwatchElapsed = 0;
+      displayStopwatch.textContent = "00:00.000";
+
+      clearInterval(timerInterval); // タイマーを停止
+      timerRunning = false;
+      timerRemainingSeconds = 0;
+      minutesInput.value = 0;
+      secondsInput.value = 0;
+      stopAlarm(); // アラームを停止
+
+      modeSelectArea.style.display = 'block';
+      stopwatchContent.style.display = 'none';
+      timerContent.style.display = 'none';
+    }
+
+    // イベントリスナー
     btnStopwatch.addEventListener('click', () => {
       initializeAudio();
       modeSelectArea.style.display = 'none';
@@ -395,8 +434,14 @@
       modeSelectArea.style.display = 'none';
       timerContent.style.display = 'block';
       stopwatchContent.style.display = 'none';
-      showSetupScreen();
+      showSetupScreen(); // タイマー選択時は設定画面を表示
     });
+
+    // 追加した戻るボタンのイベントリスナー
+    backFromStopwatchBtn.addEventListener('click', backToModeSelection);
+    backFromTimerSetupBtn.addEventListener('click', backToModeSelection);
+    backFromTimerCountdownBtn.addEventListener('click', backToModeSelection);
+    backFromTimerFinishedBtn.addEventListener('click', backToModeSelection);
 
     stopwatchContent.style.display = 'none';
     timerContent.style.display = 'none';
