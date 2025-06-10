@@ -50,7 +50,7 @@
         }
         .button:hover { opacity: 0.9; }
         .stopwatch { background-color: var(--btn-main); }
-        .timer         { background-color: var(--btn-alt); }
+        .timer          { background-color: var(--btn-alt); }
         .info-button { background-color: var(--btn-info); } /* 使い方ボタンのスタイル */
         .back-to-mode { background-color: var(--btn-back); } /* 戻るボタンのスタイル */
         #modeSelectArea { margin-bottom: 30px; }
@@ -197,8 +197,7 @@
 
         <div id="stopwatchContent" class="mode-content">
             <h2>ストップウォッチ</h2>
-            <div id="display-stopwatch">00:00.000</div>
-            <button class="stopwatch-btn start" id="startBtn">スタート</button>
+            <div id="display-stopwatch">00:00.00</div> <button class="stopwatch-btn start" id="startBtn">スタート</button>
             <button class="stopwatch-btn stop" id="stopBtn">ストップ</button>
             <button class="stopwatch-btn reset" id="resetBtn">リセット</button>
             <button class="button back-to-mode" id="backFromStopwatchBtn">モード<ruby>選択<rp>(</rp><rt>せんたく</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>る</button>
@@ -350,8 +349,9 @@
             const totalSeconds = Math.floor(ms / 1000);
             const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
             const seconds = String(totalSeconds % 60).padStart(2, '0');
-            const milliseconds = String(ms % 1000).padStart(3, '0');
-            return `${minutes}:${seconds}.${milliseconds}`;
+            // 変更点：ミリ秒を10で割って小数点以下第二位にし、2桁の文字列として整形
+            const centiseconds = String(Math.floor((ms % 1000) / 10)).padStart(2, '0');
+            return `${minutes}:${seconds}.${centiseconds}`;
         }
         function updateStopwatch() {
             const now = Date.now();
@@ -375,7 +375,7 @@
             clearInterval(stopwatchInterval);
             stopwatchRunning = false;
             stopwatchElapsed = 0;
-            displayStopwatch.textContent = "00:00.000";
+            displayStopwatch.textContent = "00:00.00"; // 初期表示も小数第二位に合わせる
         });
 
         // タイマー処理
@@ -483,7 +483,7 @@
             clearInterval(stopwatchInterval); // ストップウォッチを停止
             stopwatchRunning = false;
             stopwatchElapsed = 0;
-            displayStopwatch.textContent = "00:00.000";
+            displayStopwatch.textContent = "00:00.00"; // 初期表示も小数第二位に合わせる
 
             clearInterval(timerInterval); // タイマーを停止
             timerRunning = false;
