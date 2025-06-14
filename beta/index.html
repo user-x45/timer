@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Stopwatch & Timer</title>
+    <link rel="icon" href="https://user-b4h.github.io/timer/favicon.png" type="image/png">
+    <style>
+        :root {
+            --text: #000;
+            --btn-main: #3498db;
+            --btn-alt: #9b59b6;
+            --btn-info: #337ab7; /* 使い方ボタンの色 */
+            --bg: #f5f7fa;
+            --box-bg: #fff;
+            --box-shadow: rgba(0, 0, 0, 0.1);
+            --btn-start: #4CAF50;
+            --btn-stop: #f39c12;
+            --btn-reset: #e74c3c;
+            --btn-back: #6c757d; /* 戻るボタンの色 */
+            --info-text: #555; /* 追加する情報テキストの色 */
+            --btn-pip: #20b2aa; /* PiPボタンの色 */
+            --tab-bg: #e0e0e0;
+            --tab-text: #555;
+            --tab-active-bg: #ffffff;
+            --tab-active-text: var(--text);
+            --tab-border: #ccc;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text: #e0e0e0;
+                --bg: #282c34;
+                --box-bg: #3c404a;
+                --box-shadow: rgba(255, 255, 255, 0.1);
+                --btn-main: #61afef;
+                --btn-alt: #c678dd;
+                --btn-info: #569cd6;
+                --btn-start: #78e37d;
+                --btn-stop: #e5c07b;
+                --btn-reset: #e06c75;
+                --btn-back: #a0a0a0;
+                --info-text: #bbb; /* ダークモードでの情報テキストの色 */
+                --btn-pip: #48d1cc; /* ダークモードでのPiPボタンの色 */
+                --tab-bg: #444;
+                --tab-text: #aaa;
+                --tab-active-bg: #282c34;
+                --tab-active-text: #e0e0e0;
+                --tab-border: #666;
+            }
+            h1, h2 {
+                color: var(--text) !important; /* ダークモードでの見出しの色を強制 */
+            }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column; /* タブバーを上部に配置するため */
+            justify-content: center;
+            align-items: center;
+            color: var(--text);
+            background-color: var(--bg);
+            min-height: 100vh; /* 画面全体を占めるように */
+        }
+        .container {
+            border-radius: 20px;
+            text-align: center;
+            color: var(--text);
+            height: fit-content;
+            margin-top: 20px; /* タブバーの下に少しスペース */
+            padding: 20px;
+            background: var(--box-bg);
+            box-shadow: 0 4px 10px var(--box-shadow);
+            max-width: 600px;
+            width: 90%; /* 幅を調整 */
+        }
+        h1 { font-size: 28px; margin-bottom: 30px; color: black; }
+        .button {
+            font-size: 20px; padding: 16px 32px;
+            border: none; border-radius: 12px;
+            cursor: pointer; margin: 10px;
+            transition: 0.3s; color: white;
+            user-select: none; display: inline-block;
+            text-decoration: none; text-align: center;
+        }
+        .button:hover { opacity: 0.9; }
+        .stopwatch { background-color: var(--btn-main); }
+        .timer         { background-color: var(--btn-alt); }
+        .info-button { background-color: var(--btn-info); } /* 使い方ボタンの色 */
+        .back-to-mode { background-color: var(--btn-back); } /* 戻るボタンの色 */
+        .pip-button { background-color: var(--btn-pip); } /* PiPボタンの色 */
+        .mode-content { display: none; font-size: 24px; color: black; }
+        #stopwatchContent h2 {
+            margin-bottom: 20px; font-size: 28px;
+        }
+        #display-stopwatch {
+            font-size: 48px; font-weight: bold;
+            background: var(--box-bg); color: var(--text);
+            padding: 24px 48px; border-radius: 16px;
+            box-shadow: 0 4px 10px var(--box-shadow);
+            margin: 30px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        button.stopwatch-btn {
+            font-size: 18px; padding: 14px 24px;
+            border: none; border-radius: 10px;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 2px 6px var(--box-shadow);
+            margin: 10px 6px; color: white;
+        }
+        button.start { background-color: var(--btn-start); }
+        button.stop  { background-color: var(--btn-stop); }
+        button.reset { background-color: var(--btn-reset); }
+        button.stopwatch-btn:hover { opacity: 0.9; }
+
+        .key-hint {
+            font-size: 16px;
+            color: var(--info-text);
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        #timerContent { color: var(--text); }
+        #timerContent h1, #timerContent h2 {
+            font-size: 26px; margin-bottom: 20px;
+        }
+        .inputs {
+            display: flex; gap: 8px;
+            justify-content: center; margin-bottom: 16px;
+            align-items: center; flex-wrap: wrap;
+        }
+        .inputs input {
+            width: 70px; font-size: 24px;
+            padding: 12px; border-radius: 10px;
+            border: 1px solid #ccc; text-align: center;
+            background: var(--box-bg); color: var(--text);
+        }
+        .label {
+            font-size: 16px; margin: 0 4px;
+            display: flex; align-items: center;
+        }
+        #timerContent button {
+            font-size: 18px; padding: 14px 24px;
+            border: none; border-radius: 10px;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 2px 6px var(--box-shadow);
+            margin: 10px 6px; color: white;
+        }
+        #timerContent button:hover { opacity: 0.9; }
+        #timerContent button.start { background-color: var(--btn-start); }
+        #timerContent button.stop  { background-color: var(--btn-stop); }
+        #timerContent button.reset { background-color: var(--btn-reset); }
+        #timerContent button.pip { background-color: var(--btn-pip); }
+
+        #display-timer {
+            font-size: 56px; font-weight: bold;
+            background: var(--box-bg); color: var(--text);
+            padding: 24px 48px; border-radius: 16px;
+            box-shadow: 0 4px 10px var(--box-shadow);
+            margin: 30px 0;
+        }
+
+        .hidden { display: none !important; }
+
+        /* 使い方エリアのスタイル */
+        #usageContent {
+            display: none;
+            text-align: left;
+            padding: 20px;
+            background: var(--box-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 10px var(--box-shadow);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            color: var(--text);
+        }
+        #usageContent h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: black;
+        }
+        #usageContent p {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        #usageContent ul {
+            list-style: none;
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        #usageContent li {
+            margin-bottom: 8px;
+            font-size: 18px;
+            position: relative;
+        }
+        #usageContent li::before {
+            content: '•';
+            color: var(--btn-main);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        /* PiP用CanvasとVideo要素は通常非表示 */
+        #pipCanvas, #pipVideo {
+            display: none;
+            position: absolute; /* 画面外に配置 */
+            left: -9999px;
+            top: -9999px;
+            width: 1px; /* 最小サイズ */
+            height: 1px;
+            opacity: 0; /* 透明 */
+            pointer-events: none; /* クリック不可 */
+        }
+
+        /* タブバーのスタイル */
+        .tab-bar {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--tab-bg);
+            border-bottom: 1px solid var(--tab-border);
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab-button {
+            flex-grow: 1;
+            padding: 15px 0;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            color: var(--tab-text);
+            background-color: var(--tab-bg);
+            border: none;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .tab-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-button.active {
+            background-color: var(--tab-active-bg);
+            color: var(--tab-active-text);
+            border-bottom: 3px solid var(--btn-main);
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.05);
+        }
+        .tab-button:first-child {
+            border-top-left-radius: 12px;
+        }
+        .tab-button:last-child {
+            border-top-right-radius: 12px;
+        }
+
+
+        @media (min-width: 768px) {
+            h1, #timerContent h1 { font-size: 32px; }
+            .inputs input {
+                font-size: 28px; width: 80px;
+            }
+            .label { font-size: 18px; }
+            #timerContent button {
+                font-size: 20px; padding: 16px 32px;
+            }
+            #display-timer {
+                font-size: 72px; padding: 30px 60px;
+            }
+            #stopwatchContent h2 { font-size: 32px; }
+            #display-stopwatch {
+                font-size: 64px; padding: 30px 60px;
+            }
+            button.stopwatch-btn {
+                font-size: 20px; padding: 16px 32px;
+            }
+            #usageContent h2 { font-size: 28px; }
+            #usageContent p, #usageContent li { font-size: 20px; }
+            .key-hint {
+                font-size: 18px;
+            }
+            .tab-button {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- タブバーの追加 -->
+    <div class="tab-bar">
+        <button class="tab-button active" id="tabStopwatch">ストップウォッチ</button>
+        <button class="tab-button" id="tabTimer">タイマー</button>
+        <button class="tab-button" id="tabUsage">使い方</button>
+    </div>
+
+    <div class="container">
+        <!-- 既存のモード選択エリアは不要になるので削除または非表示 -->
+        <!-- <div id="modeSelectArea">
+            <h1>モードを<ruby>選択<rp>(</rp><rt>せんたく</rt><rp>)</rp></ruby>してください</h1>
+            <button class="button stopwatch" id="btnStopwatch">ストップウォッチ</button>
+            <button class="button timer" id="btnTimer">タイマー</button>
+            <button class="button info-button" id="btnUsage"><ruby>使<rp>(</rp><rt>つか</rt><rp>)</rp></ruby>い<ruby>方<rp>(</rp><rt>かた</rt><rp>)</rp></ruby></button>
+        </div> -->
+
+        <div id="stopwatchContent" class="mode-content">
+            <h2>ストップウォッチ</h2>
+            <div id="display-stopwatch">00:00.00</div>
+            <button class="stopwatch-btn start" id="startBtn">スタート</button>
+            <button class="stopwatch-btn stop" id="stopBtn">ストップ</button>
+            <button class="stopwatch-btn reset" id="resetBtn">リセット</button>
+            <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でスタート/ストップ</div>
+            <!-- <button class="button back-to-mode" id="backFromStopwatchBtn">モード<ruby>選択<rp>(</rp><rt>せんたく</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>る</button> -->
+        </div>
+
+        <div id="timerContent" class="mode-content">
+            <div id="setup-screen">
+                <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>してください</h1>
+                <div class="inputs">
+                    <input id="minutes" type="number" min="0" max="99" value="0" inputmode="numeric" />
+                    <span class="label">分</span>
+                    <input id="seconds" type="number" min="0" max="59" value="0" inputmode="numeric" />
+                    <span class="label">秒</span>
+                </div>
+                <button class="start" id="timerStartBtn">スタート</button>
+                <button class="reset" id="timerResetBtn">リセット</button>
+                <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でスタート</div>
+                <!-- <button class="button back-to-mode" id="backFromTimerSetupBtn">モード<ruby>選択<rp>(</rp><rt>せんたく</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>る</button> -->
+            </div>
+
+            <div id="countdown-screen" class="hidden">
+                <h1>カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby></h1>
+                <div id="display-timer">00分00秒</div>
+                <button class="start" id="timerResumeBtn">スタート</button>
+                <button class="stop" id="timerStopBtn">ストップ</button>
+                <button class="reset" id="timerResetCountdownBtn">リセット</button>
+                <button class="pip-button" id="togglePipBtn">PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby></button> <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でスタート/ストップ</div>
+                <!-- <button class="button back-to-mode hidden" id="backFromTimerCountdownBtn">モード<ruby>選択<rp>(</rp><rt>せんたく</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>る</button> -->
+            </div>
+
+            <div id="finished-screen" class="hidden">
+                <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！</h1>
+                <button class="stop" id="timerStopAlarmBtn">ストップ</button>
+                <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でアラーム<ruby>停止<rp>(</rp><rt>ていし</rt><rp>)</rp></ruby></div>
+                <!-- <button class="button back-to-mode hidden" id="backFromTimerFinishedBtn">モード<ruby>選択<rp>(</rp><rt>せんたく</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>る</button> -->
+            </div>
+        </div>
+
+        <div id="usageContent" class="mode-content">
+            <h2>アプリの<ruby>使<rp>(</rp><rt>つか</rt><rp>)</rp></ruby>い<ruby>方<rp>(</rp><rt>かた</rt><rp>)</rp></ruby></h2>
+            <p>このアプリは、ストップウォッチ<ruby>機能<rp>(</rp><rt>きのう</rt><rp>)</rp></ruby>とタイマー<ruby>機能<rp>(</rp><rt>きのう</rt><rp>)</rp></ruby>を<ruby>提供<rp>(</rp><rt>ていきょう</rt><rp>)</rp></ruby>するシンプルなツールです。</p>
+
+            <h3>ストップウォッチモード</h3>
+            <ul>
+                <li>「ストップウォッチ」タブをクリックしてモードに<ruby>入<rp>(</rp><rt>はい</rt><rp>)</rp></ruby>ります。</li>
+                <li>「スタート」ボタンで<ruby>計測<rp>(</rp><rt>けいそく</rt><rp>)</rp></ruby>を<ruby>開始<rp>(</rp><rt>かいし</rt><rp>)</rp></ruby>します。</li>
+                <li>「ストップ」ボタンで<ruby>計測<rp>(</rp><rt>けいそく</rt><rp>)</rp></ruby>を<ruby>一時<rp>(</rp><rt>いちじ</rt><rp>)</rp></ruby><ruby>停止<rp>(</rp><rt>ていし</rt><rp>)</rp></ruby>します。</li>
+                <li>「リセット」ボタンで<ruby>計測<rp>(</rp><rt>けいそく</rt><rp>)</rp></ruby>を0に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>します。</li>
+                <li><b>エンターキー</b>または<b>スペースキー</b>を<ruby>押<rp>(</rp><rt>お</rt><rp>)</rp></ruby>すことで、<b>スタート</b>と<b>ストップ</b>を<ruby>切<rp>(</rp><rt>き</rt><rp>)</rp></ruby>り<ruby>替<rp>(</rp><rt>か</rt><rp>)</rp></ruby>えられます。</li>
+            </ul>
+
+            <h3>タイマーモード</h3>
+            <ul>
+                <li>「タイマー」タブをクリックしてモードに<ruby>入<rp>(</rp><rt>はい</rt><rp>)</rp></ruby>ります。</li>
+                <li><ruby>分<rp>(</rp><rt>ふん</rt><rp>)</rp></ruby>と<ruby>秒<rp>(</rp><rt>びょう</rt><rp>)</rp></ruby>の<ruby>入力<rp>(</rp><rt>にゅうりょく</rt><rp>)</rp></ruby><ruby>欄<rp>(</rp><rt>らん</rt><rp>)</rp></ruby>で<ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>します。（<ruby>例<rp>(</rp><rt>れい</rt><rp>)</rp></ruby>: 5<ruby>分<rp>(</rp><rt>ふん</rt><rp>)</rp></ruby>30<ruby>秒<rp>(</rp><rt>びょう</rt><rp>)</rp></ruby>）</li>
+                <li>「スタート」ボタンでカウントダウンを<ruby>開始<rp>(</rp><rt>かいし</rt><rp>)</rp></ruby>します。</li>
+                <li>カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby>は「ストップ」で<ruby>一時<rp>(</rp><rt>いちじ</rt><rp>)</rp></ruby><ruby>停止<rp>(</rp><rt>ていし</rt><rp>)</rp></ruby>、「スタート」で<ruby>再開<rp>(</rp><rt>さいかい</rt><rp>)</rp></ruby>できます。</li>
+                <li>「PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>」ボタンで、<ruby>残<rp>(</rp><rt>のこ</rt><rp>)</rp></ruby>り<ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>小<rp>(</rp><rt>ちい</rt><rp>)</rp></ruby>さなウィンドウで<ruby>常<rp>(</rp><rt>つね</rt><rp>)</rp></ruby>に<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>できます。
+                    <ul>
+                        <li>PiPウィンドウは、ブラウザの<ruby>他<rp>(</rp><rt>ほか</rt><rp>)</rp></ruby>のタブやアプリケーションの<ruby>上<rp>(</rp><rt>うえ</rt><rp>)</rp></ruby>に<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>されるので、<ruby>作業<rp>(</rp><rt>さぎょう</rt><rp>)</rp></ruby>をしながら<ruby>残<rp>(</rp><rt>のこ</rt><rp>)</rp></ruby>り<ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>確認<rp>(</rp><rt>かくにん</rt><rp>)</rp></ruby>できます。</li>
+                        <li>PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>したい<ruby>場合<rp>(</rp><rt>ばあい</rt><rp>)</rp></ruby>は、PiPウィンドウの<ruby>閉<rp>(</rp><rt>と</rt><rp>)</rp></ruby>じるボタンをクリックするか、<ruby>元<rp>(</rp><rt>もと</rt><rp>)</rp></ruby>のページの「PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>」ボタンをクリックしてください。</li>
+                    </ul>
+                </li>
+                <li>「リセット」ボタンで<ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby><ruby>画面<rp>(</rp><rt>がめん</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>します。</li>
+                <li><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>が0になるとアラームが<ruby>鳴<rp>(</rp><rt>な</rt><rp>)</rp></ruby>り、「<ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！」と<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>されます。「ストップ」ボタンでアラームを<ruby>停止<rp>(</rp><rt>ていし</rt><rp>)</rp></ruby>し、<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby><ruby>画面<rp>(</rp><rt>がめん</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>ります。</li>
+                <li><b>エンターキー</b>または<b>スペースキー</b>を<ruby>押<rp>(</rp><rt>お</rt><rp>)</rp></ruby>すことで、<b>スタート</b>と<b>ストップ</b>を<ruby>切<rp>(</rp><rt>き</rt><rp>)</rp></ruby>り<ruby>替<rp>(</rp><rt>か</rt><rp>)</rp></ruby>えられます。（<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby><ruby>画面<rp>(</rp><rt>がめん</rt><rp>)</rp></ruby>ではスタート、カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby>はスタート/ストップ、<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby><ruby>画面<rp>(</rp><rt>がめん</rt><rp>)</rp></ruby>ではアラーム<ruby>停止<rp>(</rp><rt>ていし</rt><rp>)</rp></ruby>）</li>
+            </ul>
+            <!-- <button class="button back-to-mode" id="backFromUsageBtn">モード<ruby>選択<rp>(</rp><rt>せんたく</rt><rp>)</rp></ruby>に<ruby>戻<rp>(</rp><rt>もど</rt><rp>)</rp></ruby>る</button> -->
+        </div>
+    </div>
+
+    <canvas id="pipCanvas" width="400" height="200"></canvas>
+    <video id="pipVideo" autoplay muted></video>
+
+    <script>
+        // DOM要素の取得
+        const tabStopwatch = document.getElementById('tabStopwatch');
+        const tabTimer = document.getElementById('tabTimer');
+        const tabUsage = document.getElementById('tabUsage');
+
+        const stopwatchContent = document.getElementById('stopwatchContent');
+        const displayStopwatch = document.getElementById('display-stopwatch');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        const timerContent = document.getElementById('timerContent');
+        const setupScreen = document.getElementById('setup-screen');
+        const countdownScreen = document.getElementById('countdown-screen');
+        const finishedScreen = document.getElementById('finished-screen');
+        const minutesInput = document.getElementById('minutes');
+        const secondsInput = document.getElementById('seconds');
+        const timerStartBtn = document.getElementById('timerStartBtn');
+        const timerResetBtn = document.getElementById('timerResetBtn');
+        const timerResumeBtn = document.getElementById('timerResumeBtn');
+        const timerStopBtn = document.getElementById('timerStopBtn');
+        const timerResetCountdownBtn = document.getElementById('timerResetCountdownBtn');
+        const timerStopAlarmBtn = document.getElementById('timerStopAlarmBtn');
+        const displayTimer = document.getElementById('display-timer');
+        const togglePipBtn = document.getElementById('togglePipBtn');
+
+        const usageContent = document.getElementById('usageContent');
+
+        // PiP関連の要素
+        const pipCanvas = document.getElementById('pipCanvas');
+        const pipCtx = pipCanvas.getContext('2d');
+        const pipVideo = document.getElementById('pipVideo');
+        let pipStream = null;
+
+        let stopwatchInterval = null;
+        let stopwatchStartTime = 0;
+        let stopwatchElapsed = 0;
+        let stopwatchRunning = false;
+
+        let timerInterval = null;
+        let timerTotalSeconds = 0;
+        let timerRemainingSeconds = 0;
+        let timerRunning = false;
+
+        // --- iOS対応：AudioオブジェクトをJSで初期化 ---
+        let alarmSound;
+        let alarmPlaying = false;
+        let audioInitialized = false;
+
+        function initializeAudio() {
+            if (!audioInitialized) {
+                alarmSound = new Audio('https://user-b4h.github.io/timer/alerm1.mp3');
+                alarmSound.loop = true;
+                audioInitialized = true;
+            }
+        }
+
+        function playAlarm() {
+            initializeAudio();
+            if (!alarmPlaying) {
+                alarmSound.play().catch(e => console.error('音声再生エラー:', e));
+                alarmPlaying = true;
+            }
+        }
+
+        function stopAlarm() {
+            if (alarmPlaying && alarmSound) {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                alarmPlaying = false;
+            }
+        }
+        // --- iOS対応ここまで ---
+
+        // ストップウォッチ処理
+        function formatStopwatchTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            const centiseconds = String(Math.floor((ms % 1000) / 10)).padStart(2, '0');
+            return `${minutes}:${seconds}.${centiseconds}`;
+        }
+        function updateStopwatch() {
+            const now = Date.now();
+            stopwatchElapsed = now - stopwatchStartTime;
+            displayStopwatch.textContent = formatStopwatchTime(stopwatchElapsed);
+        }
+        function startStopwatch() {
+            if (!stopwatchRunning) {
+                stopwatchStartTime = Date.now() - stopwatchElapsed;
+                stopwatchInterval = setInterval(updateStopwatch, 10);
+                stopwatchRunning = true;
+            }
+        }
+        function stopStopwatch() {
+            if (stopwatchRunning) {
+                clearInterval(stopwatchInterval);
+                stopwatchRunning = false;
+            }
+        }
+        startBtn.addEventListener('click', startStopwatch);
+        stopBtn.addEventListener('click', stopStopwatch);
+        resetBtn.addEventListener('click', () => {
+            clearInterval(stopwatchInterval);
+            stopwatchRunning = false;
+            stopwatchElapsed = 0;
+            displayStopwatch.textContent = "00:00.00";
+        });
+
+        // タイマー処理
+        function formatTimerTime(sec) {
+            const m = String(Math.floor(sec / 60)).padStart(2, '0');
+            const s = String(sec % 60).padStart(2, '0');
+            return `${m}分${s}秒`;
+        }
+
+        // --- PiP表示用のCanvas描画関数 ---
+        function drawTimerOnCanvas(timeString) {
+            pipCtx.clearRect(0, 0, pipCanvas.width, pipCanvas.height);
+            pipCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg'); // 背景色
+            pipCtx.fillRect(0, 0, pipCanvas.width, pipCanvas.height);
+            pipCtx.font = 'bold 80px "Segoe UI", sans-serif'; // フォントサイズ調整
+            pipCtx.textAlign = 'center';
+            pipCtx.textBaseline = 'middle';
+            pipCtx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text'); // 文字色
+            pipCtx.fillText(timeString, pipCanvas.width / 2, pipCanvas.height / 2);
+        }
+        // --- PiP表示用のCanvas描画関数ここまで ---
+
+        function updateTimer() {
+            if (timerRemainingSeconds <= 0) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                timerRemainingSeconds = 0;
+                displayTimer.textContent = "00分00秒";
+                drawTimerOnCanvas("00分00秒"); // Canvasも更新
+                showFinishedScreen();
+                playAlarm();
+                exitPictureInPicture(); // タイマー終了時にPiPを終了
+                return;
+            }
+            const formattedTime = formatTimerTime(timerRemainingSeconds);
+            displayTimer.textContent = formattedTime;
+            drawTimerOnCanvas(formattedTime); // Canvasも更新
+            timerRemainingSeconds--;
+        }
+
+        function startTimer() {
+            initializeAudio(); // ユーザー操作トリガーとして
+            let m = parseInt(minutesInput.value);
+            let s = parseInt(secondsInput.value);
+            if (isNaN(m)||m<0) m = 0;
+            if (isNaN(s)||s<0) s = 0;
+            if (s>59) s = 59;
+            timerTotalSeconds = m*60 + s;
+            if (timerTotalSeconds <= 0) {
+                // カスタムアラート表示
+                showCustomAlert('時間を正しく設定してください。');
+                return;
+            }
+            timerRemainingSeconds = timerTotalSeconds;
+            showCountdownScreen();
+            updateTimer();
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            timerRunning = true;
+            stopAlarm();
+            // PiPボタンの表示制御
+            if ('pictureInPictureEnabled' in document && !document.pictureInPictureElement) {
+                togglePipBtn.style.display = 'inline-block';
+            } else {
+                togglePipBtn.style.display = 'none';
+            }
+        }
+
+        function stopTimer() {
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+            }
+        }
+        function resumeTimer() {
+            if (!timerRunning && timerRemainingSeconds > 0) {
+                timerInterval = setInterval(updateTimer, 1000);
+                timerRunning = true;
+            }
+        }
+
+
+        function showSetupScreen() {
+            setupScreen.classList.remove('hidden');
+            countdownScreen.classList.add('hidden');
+            finishedScreen.classList.add('hidden');
+            stopAlarm();
+            exitPictureInPicture(); // PiPを終了
+            togglePipBtn.style.display = 'none'; // PiPボタンを非表示
+        }
+        function showCountdownScreen() {
+            setupScreen.classList.add('hidden');
+            countdownScreen.classList.remove('hidden');
+            finishedScreen.classList.add('hidden');
+            // PiPボタンの表示制御
+            if ('pictureInPictureEnabled' in document && !document.pictureInPictureElement) {
+                togglePipBtn.style.display = 'inline-block';
+            } else {
+                togglePipBtn.style.display = 'none';
+            }
+        }
+        function showFinishedScreen() {
+            setupScreen.classList.add('hidden');
+            countdownScreen.classList.add('hidden');
+            finishedScreen.classList.remove('hidden');
+            exitPictureInPicture(); // PiPを終了
+            togglePipBtn.style.display = 'none'; // PiPボタンを非表示
+        }
+
+        timerStartBtn.addEventListener('click', startTimer);
+        timerStopBtn.addEventListener('click', stopTimer);
+        timerResumeBtn.addEventListener('click', resumeTimer);
+
+        timerResetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerRemainingSeconds = 0;
+            minutesInput.value = 0;
+            secondsInput.value = 0;
+            showSetupScreen();
+        });
+        timerResetCountdownBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerRemainingSeconds = 0;
+            minutesInput.value = 0;
+            secondsInput.value = 0;
+            showSetupScreen();
+        });
+        timerStopAlarmBtn.addEventListener('click', () => {
+            stopAlarm();
+            showSetupScreen();
+        });
+
+        // カスタムアラート表示関数
+        function showCustomAlert(message) {
+            const alertBox = document.createElement('div');
+            alertBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: var(--box-bg);
+                color: var(--text);
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                z-index: 1000;
+                text-align: center;
+                font-size: 18px;
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+            `;
+            alertBox.innerHTML = `
+                <p>${message}</p>
+                <button id="alertOkBtn" style="
+                    background-color: var(--btn-main);
+                    color: white;
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">OK</button>
+            `;
+            document.body.appendChild(alertBox);
+
+            document.getElementById('alertOkBtn').addEventListener('click', () => {
+                document.body.removeChild(alertBox);
+            });
+        }
+
+
+        // 全てのコンテンツを非表示にし、指定されたコンテンツを表示する関数
+        function showContent(contentId) {
+            // 各コンテンツ要素を配列にまとめて処理
+            const allContents = [stopwatchContent, timerContent, usageContent];
+            allContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            document.getElementById(contentId).style.display = 'block';
+
+            // すべてのアクティブな状態を解除
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // クリックされたタブをアクティブにする
+            if (contentId === 'stopwatchContent') {
+                tabStopwatch.classList.add('active');
+            } else if (contentId === 'timerContent') {
+                tabTimer.classList.add('active');
+            } else if (contentId === 'usageContent') {
+                tabUsage.classList.add('active');
+            }
+
+            // モード切り替え時の共通処理
+            clearInterval(stopwatchInterval); // ストップウォッチを停止
+            stopwatchRunning = false;
+            stopwatchElapsed = 0;
+            displayStopwatch.textContent = "00:00.00";
+
+            clearInterval(timerInterval); // タイマーを停止
+            timerRunning = false;
+            timerRemainingSeconds = 0;
+            minutesInput.value = 0;
+            secondsInput.value = 0;
+            stopAlarm(); // アラームを停止
+            exitPictureInPicture(); // PiPを終了
+            togglePipBtn.style.display = 'none'; // PiPボタンを非表示
+
+            // タイマーモードの場合は設定画面から開始
+            if (contentId === 'timerContent') {
+                showSetupScreen();
+            }
+        }
+
+        // タブボタンのイベントリスナー
+        tabStopwatch.addEventListener('click', () => {
+            initializeAudio(); // ユーザー操作トリガーとして
+            showContent('stopwatchContent');
+        });
+        tabTimer.addEventListener('click', () => {
+            initializeAudio(); // ユーザー操作トリガーとして
+            showContent('timerContent');
+        });
+        tabUsage.addEventListener('click', () => {
+            initializeAudio(); // ユーザー操作トリガーとして
+            showContent('usageContent');
+        });
+
+        // 入力制限
+        function limitInputToTwoDigits(input, max) {
+            input.addEventListener('input', () => {
+                const v = input.value.replace(/[^0-9]/g, '');
+                let value = parseInt(v, 10);
+                if (isNaN(value)) {
+                    input.value = '';
+                } else if (value > max) {
+                    input.value = max;
+                } else {
+                    input.value = String(value);
+                }
+            });
+        }
+        limitInputToTwoDigits(minutesInput, 99);
+        limitInputToTwoDigits(secondsInput, 59);
+
+        // キーボードイベントのリスナーを追加
+        document.addEventListener('keydown', (event) => {
+            // ストップウォッチモードの場合
+            if (stopwatchContent.style.display === 'block') {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault(); // デフォルトの動作（スクロールなど）を防止
+                    if (stopwatchRunning) {
+                        stopStopwatch();
+                    } else {
+                        startStopwatch();
+                    }
+                }
+            }
+            // タイマーモードの場合
+            else if (timerContent.style.display === 'block') {
+                // 設定画面の場合
+                if (setupScreen.classList.contains('hidden') === false) {
+                    // 入力フィールドにフォーカスがあるかどうかにかかわらず、EnterまたはSpaceでスタート
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault(); // デフォルトの動作を防止
+                        startTimer();
+                    }
+                }
+                // カウントダウン中の場合
+                else if (countdownScreen.classList.contains('hidden') === false) {
+                    // 入力フィールドにフォーカスがある場合はキーイベントを無視
+                    if (document.activeElement === minutesInput || document.activeElement === secondsInput) {
+                        return;
+                    }
+
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault(); // デフォルトの動作を防止
+                        if (timerRunning) {
+                            stopTimer();
+                        } else {
+                            resumeTimer();
+                        }
+                    }
+                }
+                // 終了画面の場合
+                else if (finishedScreen.classList.contains('hidden') === false) {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault(); // デフォルトの動作を防止
+                        timerStopAlarmBtn.click(); // アラーム停止ボタンをクリック
+                    }
+                }
+            }
+        });
+
+        // --- PiP機能関連 ---
+        async function enterPictureInPicture() {
+            if (!('pictureInPictureEnabled' in document)) {
+                showCustomAlert('お使いのブラウザはピクチャーインピクチャーに対応していません。');
+                return;
+            }
+            if (document.pictureInPictureElement) {
+                // すでにPiPモードなら何もしない
+                return;
+            }
+
+            // MediaStreamを一度だけ作成
+            if (!pipStream) {
+                pipStream = pipCanvas.captureStream();
+                pipVideo.srcObject = pipStream;
+                // ロードされるまで待機（モバイル環境で必要になる場合がある）
+                await pipVideo.play();
+            }
+
+            try {
+                await pipVideo.requestPictureInPicture();
+                togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+            } catch (error) {
+                console.error('ピクチャーインピクチャーの開始に失敗しました:', error);
+            }
+        }
+
+        function exitPictureInPicture() {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture()
+                    .then(() => {
+                        console.log('PiPを終了しました。');
+                        togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+                    })
+                    .catch(error => {
+                        console.error('PiPの終了に失敗しました:', error);
+                    });
+            }
+        }
+
+        // PiPボタンのクリックイベント
+        togglePipBtn.addEventListener('click', () => {
+            if (document.pictureInPictureElement) {
+                exitPictureInPicture();
+            } else {
+                enterPictureInPicture();
+            }
+        });
+
+        // PiPモードの開始/終了イベントリスナー
+        pipVideo.addEventListener('enterpictureinpicture', () => {
+            console.log('PiPモードに入りました。');
+            togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+        });
+
+        pipVideo.addEventListener('leavepictureinpicture', () => {
+            console.log('PiPモードから出ました。');
+            togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+        });
+        // --- PiP機能関連ここまで ---
+
+        // ページ読み込み時にストップウォッチタブをデフォルトで表示
+        document.addEventListener('DOMContentLoaded', () => {
+            showContent('stopwatchContent');
+        });
+    </script>
+</body>
+</html>
