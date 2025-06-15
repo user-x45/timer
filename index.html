@@ -54,6 +54,40 @@
             }
         }
 
+        /* スクロールバーの背景を透明にする */
+        ::-webkit-scrollbar {
+            width: 8px; /* スクロールバーの幅 */
+            height: 8px; /* スクロールバーの高さ（横スクロールの場合） */
+            background-color: transparent; /* 背景を透明にする */
+        }
+
+        /* スクロールバーのツマミ（thumb） */
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.2); /* ツマミの色を少し透明にする */
+            border-radius: 4px; /* ツマミの角を丸くする */
+        }
+
+        /* スクロールバーのツマミ（thumb）ホバー時 */
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(0, 0, 0, 0.4); /* ホバー時に少し濃くする */
+        }
+
+        /* スクロールバーのトラック（背景部分） */
+        ::-webkit-scrollbar-track {
+            background-color: transparent; /* トラックも透明にする */
+        }
+
+        /* ダークモード時のスクロールバーのツマミ */
+        @media (prefers-color-scheme: dark) {
+            ::-webkit-scrollbar-thumb {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background-color: rgba(255, 255, 255, 0.4);
+            }
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
             height: 100%; /* HTMLとbodyがビューポートの高さを占めるようにする */
@@ -566,11 +600,16 @@
             timerInterval = setInterval(updateTimer, 1000);
             timerRunning = true;
             stopAlarm();
-            // PiPボタンの表示制御
-            if ('pictureInPictureEnabled' in document && !document.pictureInPictureElement) {
-                togglePipBtn.style.display = 'inline-block';
+            // PiPボタンの表示制御（タイマー開始時にもここを通るため、ここでも適切に設定）
+            if ('pictureInPictureEnabled' in document) {
+                togglePipBtn.style.display = 'inline-block'; // ボタンを表示
+                if (document.pictureInPictureElement) {
+                    togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
+                } else {
+                    togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
+                }
             } else {
-                togglePipBtn.style.display = 'none';
+                togglePipBtn.style.display = 'none'; // PiP非対応なら非表示
             }
         }
 
@@ -602,10 +641,15 @@
             countdownScreen.classList.remove('hidden');
             finishedScreen.classList.add('hidden');
             // PiPボタンの表示制御
-            if ('pictureInPictureEnabled' in document && !document.pictureInPictureElement) {
-                togglePipBtn.style.display = 'inline-block';
+            if ('pictureInPictureEnabled' in document) { // PiP対応ブラウザの場合のみ
+                togglePipBtn.style.display = 'inline-block'; // ボタンを表示
+                if (document.pictureInPictureElement) {
+                    togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
+                } else {
+                    togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
+                }
             } else {
-                togglePipBtn.style.display = 'none';
+                togglePipBtn.style.display = 'none'; // PiP非対応なら非表示
             }
             // カウントダウン画面に切り替わったら現在の残り時間を表示
             displayTimer.textContent = formatTimerTime(timerRemainingSeconds);
@@ -717,9 +761,24 @@
                 } else { // 設定画面表示
                     showSetupScreen();
                 }
+
+                // ここでPiPボタンの表示状態を適切に更新する
+                if ('pictureInPictureEnabled' in document) {
+                    togglePipBtn.style.display = 'inline-block'; // まずボタンを表示
+                    if (document.pictureInPictureElement) {
+                        // PiPがアクティブなら「終了」表示
+                        togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
+                    } else {
+                        // PiPが非アクティブなら「表示」表示
+                        togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
+                    }
+                } else {
+                    // PiP非対応なら非表示
+                    togglePipBtn.style.display = 'none';
+                }
+
             } else {
-                // タイマーモード以外ではPiPボタンを非表示
-                exitPictureInPicture(); // PiPを終了
+                // タイマーモード以外の場合、PiPボタンを非表示にする
                 togglePipBtn.style.display = 'none';
                 if (!timerFinished) { // タイマーが終了していない場合のみアラームを停止
                     stopAlarm();
@@ -860,11 +919,18 @@
         pipVideo.addEventListener('enterpictureinpicture', () => {
             console.log('PiPモードに入りました。');
             togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+            // PiPが有効になったらボタンを表示
+            togglePipBtn.style.display = 'inline-block';
         });
 
         pipVideo.addEventListener('leavepictureinpicture', () => {
             console.log('PiPモードから出ました。');
             togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+            // PiPが閉じられたときに、タイマーが動いていない、かつ残り時間が0、かつタイマーが終了していない場合にPiPボタンを非表示にする
+            // （つまり、タイマーが完全にリセットされた状態の場合のみ非表示）
+            if (!timerRunning && timerRemainingSeconds === 0 && !timerFinished) {
+                togglePipBtn.style.display = 'none';
+            }
         });
         // --- PiP機能関連ここまで ---
 
@@ -874,6 +940,15 @@
             // タブバーの高さに基づいてbodyのpadding-bottomを設定
             const tabBarHeight = document.querySelector('.tab-bar').offsetHeight;
             document.body.style.paddingBottom = `${tabBarHeight}px`;
+        });
+
+        // ブラウザタブを閉じようとした場合の警告
+        window.addEventListener('beforeunload', (event) => {
+            // ストップウォッチが実行中、またはタイマーが実行中/一時停止中であれば警告を表示
+            if (stopwatchRunning || timerRunning || (timerRemainingSeconds > 0 && !timerFinished)) {
+                event.preventDefault(); // 標準的な方法で警告ダイアログをトリガー
+                event.returnValue = ''; // 一部の古いブラウザのために必要
+            }
         });
     </script>
 </body>
