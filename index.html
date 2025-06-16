@@ -137,7 +137,7 @@
             margin-bottom: 20px; font-size: 28px;
         }
         #display-stopwatch {
-            font-size: 48px; font-weight: bold;
+            font-size: 56px; /* 変更: 48pxから56pxに */ font-weight: bold;
             background: var(--box-bg); color: var(--text);
             padding: 24px; border-radius: 16px;
             box-shadow: 0 4px 10px var(--box-shadow);
@@ -179,7 +179,8 @@
             background: var(--box-bg); color: var(--text);
         }
         .label {
-            font-size: 16px; margin: 0 4px;
+            font-size: 36px; /* コロンのサイズを大きくしました */
+            margin: 0 4px;
             display: flex; align-items: center;
         }
         #timerContent button {
@@ -201,6 +202,7 @@
             padding: 24px; border-radius: 16px;
             box-shadow: 0 4px 10px var(--box-shadow);
             margin: 30px 0;
+            font-variant-numeric: tabular-nums; /* 等幅数字 */
         }
 
         .hidden { display: none !important; }
@@ -309,7 +311,7 @@
             .inputs input {
                 font-size: 28px; width: 80px;
             }
-            .label { font-size: 18px; }
+            .label { font-size: 48px; /* デスクトップでのコロンのサイズを大きくしました */ }
             #timerContent button {
                 font-size: 20px; padding: 16px 32px;
             }
@@ -318,7 +320,7 @@
             }
             #stopwatchContent h2 { font-size: 32px; }
             #display-stopwatch {
-                font-size: 64px; padding: 30px;
+                font-size: 72px; /* 変更: 64pxから72pxに */ padding: 30px;
             }
             button.stopwatch-btn {
                 font-size: 20px; padding: 16px 32px;
@@ -361,9 +363,8 @@
                 <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>してください</h1>
                 <div class="inputs">
                     <input id="minutes" type="number" min="0" max="99" value="0" inputmode="numeric" />
-                    <span class="label">分</span>
+                    <span class="label">:</span>
                     <input id="seconds" type="number" min="0" max="59" value="0" inputmode="numeric" />
-                    <span class="label">秒</span>
                 </div>
                 <button class="start" id="timerStartBtn">スタート</button>
                 <button class="reset" id="timerResetBtn">リセット</button>
@@ -371,8 +372,8 @@
                 </div>
 
             <div id="countdown-screen" class="hidden">
-                <h1>カウントダウン<ruby>中<rp>(</rp><rt>ちゅう</rt><rp>)</rp></ruby></h1>
-                <div id="display-timer">00分00秒</div>
+                <h1>カウントダウン</h1>
+                <div id="display-timer">00:00</div>
                 <button class="start" id="timerResumeBtn">スタート</button>
                 <button class="stop" id="timerStopBtn">ストップ</button>
                 <button class="reset" id="timerResetCountdownBtn">リセット</button>
@@ -537,7 +538,7 @@
         function formatTimerTime(sec) {
             const m = String(Math.floor(sec / 60)).padStart(2, '0');
             const s = String(sec % 60).padStart(2, '0');
-            return `${m}分${s}秒`;
+            return `${m}:${s}`;
         }
 
         // --- PiP表示用のCanvas描画関数 ---
@@ -558,8 +559,8 @@
                 clearInterval(timerInterval);
                 timerRunning = false;
                 timerRemainingSeconds = 0;
-                displayTimer.textContent = "00分00秒";
-                drawTimerOnCanvas("00分00秒"); // Canvasも更新
+                displayTimer.textContent = "00:00"; // Changed to colon format
+                drawTimerOnCanvas("00:00"); // Canvasも更新
                 timerFinished = true; // タイマーが終了したことをマーク
                 showFinishedScreen();
                 playAlarm();
