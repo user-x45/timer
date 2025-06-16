@@ -137,7 +137,7 @@
             margin-bottom: 20px; font-size: 28px;
         }
         #display-stopwatch {
-            font-size: 56px; /* 変更: 48pxから56pxに */ font-weight: bold;
+            font-size: 56px; font-weight: bold;
             background: var(--box-bg); color: var(--text);
             padding: 24px; border-radius: 16px;
             box-shadow: 0 4px 10px var(--box-shadow);
@@ -320,7 +320,7 @@
             }
             #stopwatchContent h2 { font-size: 32px; }
             #display-stopwatch {
-                font-size: 72px; /* 変更: 64pxから72pxに */ padding: 30px;
+                font-size: 72px; padding: 30px;
             }
             button.stopwatch-btn {
                 font-size: 20px; padding: 16px 32px;
@@ -339,10 +339,22 @@
                 transform: translateX(-50%);
             }
         }
+
+        /* カスタムアラートオーバーレイ */
+        #alertOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 半透明の黒 */
+            z-index: 999; /* アラートボックスのすぐ下 */
+            display: none; /* デフォルトは非表示 */
+        }
     </style>
 </head>
 <body>
-    <div class="tab-bar">
+    <div id="alertOverlay"></div> <div class="tab-bar">
         <button class="tab-button active" id="tabStopwatch">ストップウォッチ</button>
         <button class="tab-button" id="tabTimer">タイマー</button>
         <button class="tab-button" id="tabUsage"><ruby>使<rp>(</rp><rt>つか</rt><rp>)</rp></ruby>い<ruby>方<rp>(</rp><rt>かた</rt><rp>)</rp></ruby></button>
@@ -450,6 +462,7 @@
         const togglePipBtn = document.getElementById('togglePipBtn');
 
         const usageContent = document.getElementById('usageContent');
+        const alertOverlay = document.getElementById('alertOverlay'); // 新しく追加
 
         // PiP関連の要素
         const pipCanvas = document.getElementById('pipCanvas');
@@ -590,7 +603,7 @@
             timerTotalSeconds = m*60 + s;
             if (timerTotalSeconds <= 0) {
                 // カスタムアラート表示
-                showCustomAlert('時間を正しく設定してください。');
+                showCustomAlert('<ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>を<ruby>正<rp>(</rp><rt>ただ</rt><rp>)</rp></ruby>しく<ruby>設定<rp>(</rp><rt>せってい</rt><rp>)</rp></ruby>してください。');
                 return;
             }
             timerRemainingSeconds = timerTotalSeconds;
@@ -693,6 +706,7 @@
 
         // カスタムアラート表示関数
         function showCustomAlert(message) {
+            alertOverlay.style.display = 'block'; // オーバーレイを表示
             const alertBox = document.createElement('div');
             alertBox.style.cssText = `
                 position: fixed;
@@ -727,7 +741,17 @@
 
             document.getElementById('alertOkBtn').addEventListener('click', () => {
                 document.body.removeChild(alertBox);
+                alertOverlay.style.display = 'none'; // オーバーレイを非表示
             });
+            // キーボード操作でEnterキーが押されたらアラートを閉じる
+            function handleAlertKeyPress(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    document.getElementById('alertOkBtn').click();
+                    document.removeEventListener('keydown', handleAlertKeyPress); // イベントリスナーを削除
+                }
+            }
+            document.addEventListener('keydown', handleAlertKeyPress);
         }
 
 
@@ -820,6 +844,15 @@
 
         // キーボードイベントのリスナーを追加
         document.addEventListener('keydown', (event) => {
+            // アラートが表示されている場合は、OKボタン以外のキー操作をブロック
+            if (alertOverlay.style.display === 'block') {
+                // EnterまたはSpaceキーがOKボタンにフォーカスを当てるため、それ以外をブロック
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    event.preventDefault();
+                }
+                return; // アラートが開いている間は他のキーイベント処理をスキップ
+            }
+
             // ストップウォッチモードの場合
             if (stopwatchContent.style.display === 'block') {
                 if (event.key === 'Enter' || event.key === ' ') {
@@ -870,7 +903,7 @@
         // --- PiP機能関連 ---
         async function enterPictureInPicture() {
             if (!('pictureInPictureEnabled' in document)) {
-                showCustomAlert('お使いのブラウザはピクチャーインピクチャーに対応していません。');
+                showCustomAlert('お<ruby>使<rp>(</rp><rt>つか</rt><rp>)</rp></ruby>いのブラウザはピクチャーインピクチャーに<ruby>対応<rp>(</rp><rt>たいおう</rt><rp>)</rp></ruby>していません。');
                 return;
             }
             if (document.pictureInPictureElement) {
