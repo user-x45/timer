@@ -482,6 +482,9 @@
         let timerRunning = false;
         let timerFinished = false; // タイマーが終了したかどうかを追跡する新しい変数
 
+        // カスタムアラート表示状態を追跡するフラグ
+        let isCustomAlertShowing = false; // [新しく追加]
+
         // --- iOS対応：AudioオブジェクトをJSで初期化 ---
         let alarmSound;
         let alarmPlaying = false;
@@ -706,6 +709,7 @@
 
         // カスタムアラート表示関数
         function showCustomAlert(message) {
+            isCustomAlertShowing = true; // [追加]アラート表示フラグをtrueに設定
             alertOverlay.style.display = 'block'; // オーバーレイを表示
             const alertBox = document.createElement('div');
             alertBox.style.cssText = `
@@ -742,6 +746,7 @@
             document.getElementById('alertOkBtn').addEventListener('click', () => {
                 document.body.removeChild(alertBox);
                 alertOverlay.style.display = 'none'; // オーバーレイを非表示
+                isCustomAlertShowing = false; // [追加]アラート表示フラグをfalseに設定
             });
             // キーボード操作でEnterキーが押されたらアラートを閉じる
             function handleAlertKeyPress(event) {
@@ -757,6 +762,11 @@
 
         // 全てのコンテンツを非表示にし、指定されたコンテンツを表示する関数
         function showContent(contentId) {
+            // [修正]カスタムアラートが表示されている場合は処理を中断
+            if (isCustomAlertShowing) {
+                return;
+            }
+
             // 各コンテンツ要素を配列にまとめて処理
             const allContents = [stopwatchContent, timerContent, usageContent];
             allContents.forEach(content => {
