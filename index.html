@@ -6,7 +6,8 @@
     <meta name="robots" content="noindex, nofollow" />
     <title>Stopwatch & Timer</title>
     <meta name="description" content="シンプルなストップウォッチとタイマーアプリ。カウントダウン、PiP（ピクチャーインピクチャー）表示、キーボード操作に対応。学習や作業の効率化に役立ちます。" />
-    <link rel="icon" href="https://user-b4h.github.io/timer/favicon.png" type="image/png">
+    <link rel="icon" href="https://user-b4h.github.io/timer/favicon.png" type="image/png" />
+    <link href="https://use.fontawesome.com/releases/v6.7.2/css/all.css" rel="stylesheet" />
     <style>
         :root {
             --text: #000;
@@ -357,18 +358,18 @@
 <body>
     <div id="alertOverlay"></div>
     <div class="tab-bar">
-        <button class="tab-button active" id="tabStopwatch">ストップウォッチ</button>
-        <button class="tab-button" id="tabTimer">タイマー</button>
-        <button class="tab-button" id="tabUsage"><ruby>使<rp>(</rp><rt>つか</rt><rp>)</rp></ruby>い<ruby>方<rp>(</rp><rt>かた</rt><rp>)</rp></ruby></button>
+        <button class="tab-button active" id="tabStopwatch"><i class="fa-solid fa-stopwatch"></i> ストップウォッチ</button>
+        <button class="tab-button" id="tabTimer"><i class="fa-solid fa-hourglass-end"></i> タイマー</button>
+        <button class="tab-button" id="tabUsage"><i class="fa-solid fa-circle-info"></i> <ruby>使<rp>(</rp><rt>つか</rt><rp>)</rp></ruby>い<ruby>方<rp>(</rp><rt>かた</rt><rp>)</rp></ruby></button>
     </div>
 
     <div class="container">
         <div id="stopwatchContent" class="mode-content">
             <h2>ストップウォッチ</h2>
             <div id="display-stopwatch">00:00.00</div>
-            <button class="stopwatch-btn start" id="startBtn">スタート</button>
-            <button class="stopwatch-btn stop" id="stopBtn">ストップ</button>
-            <button class="stopwatch-btn reset" id="resetBtn">リセット</button>
+            <button class="stopwatch-btn start" id="startBtn"><i class="fa-solid fa-play"></i> スタート</button>
+            <button class="stopwatch-btn stop" id="stopBtn"><i class="fa-solid fa-pause"></i> ストップ</button>
+            <button class="stopwatch-btn reset" id="resetBtn"><i class="fa-solid fa-rotate-left"></i> リセット</button>
             <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でスタート/ストップ</div>
         </div>
 
@@ -380,24 +381,24 @@
                     <span class="label">:</span>
                     <input id="seconds" type="text" min="0" max="59" value="00" inputmode="numeric" />
                 </div>
-                <button class="start" id="timerStartBtn">スタート</button>
-                <button class="reset" id="timerResetBtn">リセット</button>
+                <button class="start" id="timerStartBtn"><i class="fa-solid fa-play"></i> スタート</button>
+                <button class="reset" id="timerResetBtn"><i class="fa-solid fa-rotate-left"></i> リセット</button>
                 <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でスタート</div>
             </div>
 
             <div id="countdown-screen" class="hidden">
                 <h1>カウントダウン</h1>
                 <div id="display-timer">00:00</div>
-                <button class="start" id="timerResumeBtn">スタート</button>
-                <button class="stop" id="timerStopBtn">ストップ</button>
-                <button class="reset" id="timerResetCountdownBtn">リセット</button>
-                <button class="pip-button" id="togglePipBtn">PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby></button>
+                <button class="start" id="timerResumeBtn"><i class="fa-solid fa-play"></i> スタート</button>
+                <button class="stop" id="timerStopBtn"><i class="fa-solid fa-pause"></i> ストップ</button>
+                <button class="reset" id="timerResetCountdownBtn"><i class="fa-solid fa-rotate-left"></i> リセット</button>
+                <button class="pip-button" id="togglePipBtn"><i class="fa-solid fa-window-restore"></i> PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby></button>
                 <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でスタート/ストップ</div>
             </div>
 
             <div id="finished-screen" class="hidden">
                 <h1><ruby>時間<rp>(</rp><rt>じかん</rt><rp>)</rp></ruby>になりました！</h1>
-                <button class="stop" id="timerStopAlarmBtn">ストップ</button>
+                <button class="stop" id="timerStopAlarmBtn"><i class="fa-solid fa-pause"></i> ストップ</button>
                 <div class="key-hint"><b>エンターキー</b>または<b>スペースキー</b>でアラーム<ruby>停止<rp>(</rp><rt>ていし</rt><rp>)</rp></ruby></div>
             </div>
         </div>
@@ -624,9 +625,9 @@
             if ('pictureInPictureEnabled' in document) {
                 togglePipBtn.style.display = 'inline-block'; // ボタンを表示
                 if (document.pictureInPictureElement) {
-                    togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
+                    togglePipBtn.innerHTML = '<i class="fa-solid fa-window-maximize"></i> PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
                 } else {
-                    togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
+                    togglePipBtn.innerHTML = '<i class="fa-solid fa-window-restore"></i> PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
                 }
             } else {
                 togglePipBtn.style.display = 'none'; // PiP非対応なら非表示
@@ -664,9 +665,9 @@
             if ('pictureInPictureEnabled' in document) { // PiP対応ブラウザの場合のみ
                 togglePipBtn.style.display = 'inline-block'; // ボタンを表示
                 if (document.pictureInPictureElement) {
-                    togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
+                    togglePipBtn.innerHTML = '<i class="fa-solid fa-window-maximize"></i> PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
                 } else {
-                    togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
+                    togglePipBtn.innerHTML = '<i class="fa-solid fa-window-restore"></i> PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
                 }
             } else {
                 togglePipBtn.style.display = 'none'; // PiP非対応なら非表示
@@ -805,10 +806,10 @@
                     togglePipBtn.style.display = 'inline-block'; // まずボタンを表示
                     if (document.pictureInPictureElement) {
                         // PiPがアクティブなら「終了」表示
-                        togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
+                        togglePipBtn.innerHTML = '<i class="fa-solid fa-window-maximize"></i> PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>';
                     } else {
                         // PiPが非アクティブなら「表示」表示
-                        togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
+                        togglePipBtn.innerHTML = '<i class="fa-solid fa-window-restore"></i> PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>';
                     }
                 } else {
                     // PiP非対応なら非表示
@@ -954,7 +955,7 @@
 
             try {
                 await pipVideo.requestPictureInPicture();
-                togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+                togglePipBtn.innerHTML = '<i class="fa-solid fa-window-maximize"></i> PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
             } catch (error) {
                 console.error('ピクチャーインピクチャーの開始に失敗しました:', error);
             }
@@ -965,7 +966,7 @@
                 document.exitPictureInPicture()
                     .then(() => {
                         console.log('PiPを終了しました。');
-                        togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+                        togglePipBtn.innerHTML = '<i class="fa-solid fa-window-restore"></i> PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
                     })
                     .catch(error => {
                         console.error('PiPの終了に失敗しました:', error);
@@ -985,14 +986,14 @@
         // PiPモードの開始/終了イベントリスナー
         pipVideo.addEventListener('enterpictureinpicture', () => {
             console.log('PiPモードに入りました。');
-            togglePipBtn.innerHTML = 'PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+            togglePipBtn.innerHTML = '<i class="fa-solid fa-window-maximize"></i> PiPを<ruby>終了<rp>(</rp><rt>しゅうりょう</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
             // PiPが有効になったらボタンを表示
             togglePipBtn.style.display = 'inline-block';
         });
 
         pipVideo.addEventListener('leavepictureinpicture', () => {
             console.log('PiPモードから出ました。');
-            togglePipBtn.innerHTML = 'PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
+            togglePipBtn.innerHTML = '<i class="fa-solid fa-window-restore"></i> PiPを<ruby>表示<rp>(</rp><rt>ひょうじ</rt><rp>)</rp></ruby>'; // ふりがな付きテキストに更新
             // PiPが閉じられたときに、タイマーが動いていない、かつ残り時間が0、かつタイマーが終了していない場合にPiPボタンを非表示にする
             // （つまり、タイマーが完全にリセットされた状態の場合のみ非表示）
             if (!timerRunning && timerRemainingSeconds === 0 && !timerFinished) {
