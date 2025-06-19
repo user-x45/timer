@@ -105,6 +105,7 @@
             align-items: center;
             color: var(--text);
             background-color: var(--bg);
+            padding-bottom: 60px;
         }
         * {
             font-family: "M PLUS Rounded 1c", "HiraginoSans-W2", "Hiragino Kaku Gothic ProN", Meiryo, "メイリオ", sans-serif;
@@ -1013,9 +1014,7 @@
         // ページ読み込み時にストップウォッチタブをデフォルトで表示
         document.addEventListener('DOMContentLoaded', () => {
             showContent('stopwatchContent');
-            // タブバーの高さに基づいてbodyのpadding-bottomを設定
-            const tabBarHeight = document.querySelector('.tab-bar').offsetHeight;
-            document.body.style.paddingBottom = `${tabBarHeight}px`;
+            // document.body.style.paddingBottom = `${tabBarHeight}px`; // この行が削除されました
         });
 
         // ブラウザタブを閉じようとした場合の警告
