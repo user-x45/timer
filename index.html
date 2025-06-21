@@ -316,6 +316,40 @@
             border-top-right-radius: 0; /* 角の丸みをなくす */
         }
 
+        /* スマートフォン向けスタイル */
+        @media (max-width: 767px) {
+            h1, #timerContent h1 { font-size: 24px; } /* 小さく */
+            .inputs input {
+                font-size: 20px; /* 小さく */
+                width: 60px; /* 幅も調整 */
+            }
+            .label { font-size: 30px; /* 小さく */ }
+            #timerContent button {
+                font-size: 16px; /* 小さく */
+                padding: 12px 20px; /* パディングも調整 */
+            }
+            #display-timer {
+                font-size: 48px; /* 小さく */
+                padding: 20px; /* パディングも調整 */
+            }
+            #stopwatchContent h2 { font-size: 24px; } /* 小さく */
+            #display-stopwatch {
+                font-size: 48px; /* 小さく */
+                padding: 20px; /* パディングも調整 */
+            }
+            button.stopwatch-btn {
+                font-size: 16px; /* 小さく */
+                padding: 12px 20px; /* パディングも調整 */
+            }
+            #usageContent h2 { font-size: 20px; } /* 小さく */
+            #usageContent p, #usageContent li { font-size: 16px; } /* 小さく */
+            .key-hint {
+                font-size: 14px; /* 小さく */
+            }
+            .tab-button {
+                font-size: 16px; /* 小さく */
+            }
+        }
 
         @media (min-width: 768px) {
             h1, #timerContent h1 { font-size: 32px; }
