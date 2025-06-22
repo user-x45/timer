@@ -127,6 +127,7 @@
         }
         .material-symbols-outlined {
             vertical-align: -20%;
+            font-size: inherit; /* 追加 */
         }
         h1 { font-size: 28px; margin-bottom: 30px; color: black; }
         .button {
@@ -275,6 +276,7 @@
         .tab-bar {
             display: flex;
             width: 100%;
+            max-width: 600px;
             background-color: var(--tab-bg);
             border-top: 1px solid var(--tab-border); /* 上部にボーダーを追加 */
             border-radius: 0; /* 角の丸みをなくす */
@@ -316,70 +318,40 @@
             border-top-right-radius: 0; /* 角の丸みをなくす */
         }
 
-        /* スマートフォン向けスタイル */
-        @media (max-width: 767px) {
-            h1, #timerContent h1 { font-size: 24px; } /* 小さく */
+
+        @media (max-width: 1024px) {
+            h1, #timerContent h1 { font-size: 26px; } /* 小さく調整 */
             .inputs input {
-                font-size: 20px; /* 小さく */
+                font-size: 20px; /* 小さく調整 */
                 width: 60px; /* 幅も調整 */
             }
-            .label { font-size: 30px; /* 小さく */ }
+            .label { font-size: 30px; /* 小さく調整 */ }
             #timerContent button {
-                font-size: 16px; /* 小さく */
-                padding: 12px 20px; /* パディングも調整 */
+                font-size: 16px; /* 小さく調整 */
+                padding: 12px 24px; /* パディングも調整 */
             }
             #display-timer {
-                font-size: 48px; /* 小さく */
+                font-size: 48px; /* 小さく調整 */
                 padding: 20px; /* パディングも調整 */
             }
-            #stopwatchContent h2 { font-size: 24px; } /* 小さく */
+            #stopwatchContent h2 { font-size: 26px; } /* 小さく調整 */
             #display-stopwatch {
-                font-size: 48px; /* 小さく */
+                font-size: 48px; /* 小さく調整 */
                 padding: 20px; /* パディングも調整 */
             }
             button.stopwatch-btn {
-                font-size: 16px; /* 小さく */
-                padding: 12px 20px; /* パディングも調整 */
+                font-size: 16px; /* 小さく調整 */
+                padding: 12px 24px; /* パディングも調整 */
             }
-            #usageContent h2 { font-size: 20px; } /* 小さく */
-            #usageContent p, #usageContent li { font-size: 16px; } /* 小さく */
+            #usageContent h2 { font-size: 22px; } /* 小さく調整 */
+            #usageContent p, #usageContent li { font-size: 16px; } /* 小さく調整 */
             .key-hint {
-                font-size: 14px; /* 小さく */
+                font-size: 14px; /* 小さく調整 */
             }
             .tab-button {
-                font-size: 16px; /* 小さく */
-            }
-        }
-
-        @media (min-width: 768px) {
-            h1, #timerContent h1 { font-size: 32px; }
-            .inputs input {
-                font-size: 28px; width: 80px;
-            }
-            .label { font-size: 48px; /* デスクトップでのコロンのサイズを大きくしました */ }
-            #timerContent button {
-                font-size: 20px; padding: 16px 32px;
-            }
-            #display-timer {
-                font-size: 72px; padding: 30px;
-            }
-            #stopwatchContent h2 { font-size: 32px; }
-            #display-stopwatch {
-                font-size: 72px; padding: 30px;
-            }
-            button.stopwatch-btn {
-                font-size: 20px; padding: 16px 32px;
-            }
-            #usageContent h2 { font-size: 28px; }
-            #usageContent p, #usageContent li { font-size: 20px; }
-            .key-hint {
-                font-size: 18px;
-            }
-            .tab-button {
-                font-size: 20px;
+                font-size: 16px; /* 小さく調整 */
             }
             .tab-bar {
-                max-width: 600px; /* デスクトップでは最大幅を設定 */
                 left: 50%;
                 transform: translateX(-50%);
             }
@@ -730,7 +702,7 @@
 
         timerStartBtn.addEventListener('click', startTimer);
         timerStopBtn.addEventListener('click', stopTimer);
-        timerResumeBtn.addEventListener('click', resumeTimer);
+        timerResumeBtn.addEventListener('click', timerResumeBtn);
 
         timerResetBtn.addEventListener('click', () => {
             clearInterval(timerInterval);
